@@ -1,0 +1,9 @@
+{
+  "query": "\nINSERT INTO `media_outreach_status` (`contactNum`, `status`, `lastContactedAt`) VALUES\n(1, 'sent', '2026-04-08 00:00:00'),\n(2, 'sent', '2026-04-08 00:00:00'),\n(3, 'sent', '2026-04-08 00:00:00'),\n(4, 'sent', '2026-04-08 00:00:00'),\n(5, 'sent', '2026-04-08 00:00:00'),\n(6, 'sent', '2026-04-08 00:00:00'),\n(7, 'sent', '2026-04-08 00:00:00'),\n(8, 'sent', '2026-04-08 00:00:00'),\n(9, 'sent', '2026-04-08 00:00:00'),\n(10, 'sent', '2026-04-08 00:00:00')\nON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `lastContactedAt` = VALUES(`lastContactedAt`);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute \nINSERT INTO `media_outreach_status` (`contactNum`, `status`, `lastContactedAt`) VALUES\n(1, 'sent', '2026-04-08 00:00:00'),\n(2, 'sent', '2026-04-08 00:00:00'),\n(3, 'sent', '2026-04-08 00:00:00'),\n(4, 'sent', '2026-04-08 00:00:00'),\n(5, 'sent', '2026-04-08 00:00:00'),\n(6, 'sent', '2026-04-08 00:00:00'),\n(7, 'sent', '2026-04-08 00:00:00'),\n(8, 'sent', '2026-04-08 00:00:00'),\n(9, 'sent', '2026-04-08 00:00:00'),\n(10, 'sent', '2026-04-08 00:00:00')\nON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `lastContactedAt` = VALUES(`lastContactedAt`);\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1899
+}
