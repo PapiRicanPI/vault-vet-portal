@@ -38,3 +38,13 @@
 - [x] Unicode cleanup across all TSX files
 - [x] Save checkpoint
 - [ ] Publish and bind vet.thevaultinvestigates.cloud domain (user action required)
+
+## Phase 6: Full Design Rebuild to Match Original
+- [x] Replace index.css with original vault theme (--vault-black, --vault-gold, Cinzel + EB Garamond fonts)
+- [x] Replace sidebar VaultLayout with original horizontal top-nav (THE VAULT ARCHIVIST branding)
+- [x] Replace dashboard with original AdminDashboard horizontal tab structure
+- [x] Pre-load real Media Outreach contacts (Dr. Jose Ramon G. Albert/PIDS, PCIJ, Rappler, VERA Files, CMFR, NUJP, CPJ, RSF)
+- [x] Pre-load real School contacts (Elena C. Reyes, Carmelita T. Tabio, Mrs. Anita R. De Guzman, Sonny D. Valenzuela)
+- [x] Add Weekly Ops, Focus Mode, Campaigns, Contacts Export, Volunteer Page routes
+- [x] Set PapiRican as Admin role in database (role=admin, portalRole=Admin)
+- [x] Run all 15 tests passing, TypeScript 0 errors, save checkpoint

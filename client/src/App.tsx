@@ -5,34 +5,46 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import VloggerInquiries from "./pages/VloggerInquiries";
-import SchoolOutreach from "./pages/SchoolOutreach";
-import MediaOutreach from "./pages/MediaOutreach";
+import Apply from "./pages/Apply";
+import Success from "./pages/Success";
+import AdminDashboard from "./pages/AdminDashboard";
+import SubmitTip from "./pages/SubmitTip";
+import ExportTest from "./pages/ExportTest";
+import Donate from "./pages/Donate";
+import DonateThankYou from "./pages/DonateThankYou";
+import VolunteerPage from "./pages/VolunteerPage";
+import VerifyCertificate from "./pages/VerifyCertificate";
+import WeeklyOps from "./pages/WeeklyOps";
+import FocusMode from "./pages/FocusMode";
+import CampaignSequencer from "./pages/CampaignSequencer";
+import ResearcherDashboard from "./pages/ResearcherDashboard";
 import DonorOutreach from "./pages/DonorOutreach";
-import DepEdDirectory from "./pages/DepEdDirectory";
-import Resources from "./pages/Resources";
-import MediaScan from "./pages/MediaScan";
-import MediaDownloads from "./pages/MediaDownloads";
-import AccessTiers from "./pages/AccessTiers";
-import UserManagement from "./pages/UserManagement";
-import AuditLog from "./pages/AuditLog";
+import Receipts from "./pages/Receipts";
+import VloggerInquiries from "./pages/VloggerInquiries";
+import ContactsExport from "./pages/ContactsExport";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/admin/vlogger-inquiries" component={VloggerInquiries} />
-      <Route path="/admin/school-outreach" component={SchoolOutreach} />
-      <Route path="/admin/media-outreach" component={MediaOutreach} />
-      <Route path="/admin/donor-outreach" component={DonorOutreach} />
-      <Route path="/admin/deped-directory" component={DepEdDirectory} />
-      <Route path="/admin/resources" component={Resources} />
-      <Route path="/admin/media-scan" component={MediaScan} />
-      <Route path="/admin/media-downloads" component={MediaDownloads} />
-      <Route path="/admin/access-tiers" component={AccessTiers} />
-      <Route path="/admin/users" component={UserManagement} />
-      <Route path="/admin/audit-log" component={AuditLog} />
-      <Route path="/404" component={NotFound} />
+      <Route path={"/"} component={Home} />
+      <Route path={"/apply"} component={Apply} />
+      <Route path={"/success"} component={Success} />
+      <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/tip"} component={SubmitTip} />
+      <Route path={"/export-test"} component={ExportTest} />
+      <Route path={"/donate"} component={Donate} />
+      <Route path={"/donate/thank-you"} component={DonateThankYou} />
+      <Route path={"/volunteer"} component={VolunteerPage} />
+      <Route path={"/verify"} component={VerifyCertificate} />
+      <Route path={"/admin/weekly-ops"} component={WeeklyOps} />
+      <Route path={"/admin/focus"} component={FocusMode} />
+      <Route path={"/admin/campaigns"} component={CampaignSequencer} />
+      <Route path={"/admin/donors"} component={DonorOutreach} />
+      <Route path={"/workspace"} component={ResearcherDashboard} />
+      <Route path={"/receipts"} component={Receipts} />
+      <Route path={"/admin/vlogger-inquiries"} component={VloggerInquiries} />
+      <Route path={"/admin/contacts-export"} component={ContactsExport} />
+      <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );

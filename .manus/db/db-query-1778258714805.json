@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `portalRole` enum('Observer','Researcher','Custodian','Admin') DEFAULT 'Observer' NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `downloadTier` enum('Free','Supporter','Investigator') DEFAULT 'Free' NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `downloadsUsedThisMonth` int DEFAULT 0 NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `tierResetAt` timestamp DEFAULT (now()) NOT NULL",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `portalRole` enum('Observer','Researcher','Custodian','Admin') DEFAULT 'Observer' NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `downloadTier` enum('Free','Supporter','Investigator') DEFAULT 'Free' NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `downloadsUsedThisMonth` int DEFAULT 0 NOT NULL;\nALTER TABLE `users` ADD COLUMN IF NOT EXISTS `tierResetAt` timestamp DEFAULT (now()) NOT NULL",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2450
+}

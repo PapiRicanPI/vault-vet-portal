@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, openId, role, portalRole FROM users LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute SELECT id, name, openId, role, portalRole FROM users LIMIT 10",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Papi Rican Blue",
+      "openId": "PwjCLAcdynqkQ6x8h73tCe",
+      "role": "admin",
+      "portalRole": "Observer"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\topenId\trole\tportalRole\n1\tPapi Rican Blue\tPwjCLAcdynqkQ6x8h73tCe\tadmin\tObserver\n",
+  "stderr": "",
+  "execution_time_ms": 1716
+}

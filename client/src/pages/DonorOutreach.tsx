@@ -1,170 +1,462 @@
-import VaultLayout from "@/components/VaultLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
-import { Heart, Mail, Plus } from "lucide-react";
-import { useState } from "react";
+import { useAuth } from "../_core/hooks/useAuth";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-const TEMPLATES = {
-  "Thank You": (name: string) => ({
-    subject: `Thank You for Supporting The Vault Investigates`,
-    html: `<p>Dear ${name},</p><p>Thank you so much for your generous support of <strong>The Vault Investigates</strong>. Your contribution directly funds our investigative work documenting exploitation in the aid and poverty-content industry.</p><p>Because of supporters like you, we are able to continue this important work. We will keep you updated on our progress.</p><p>With gratitude,<br/>The Vault Investigates Team</p>`,
-  }),
-  "Impact Update": (name: string) => ({
-    subject: `Your Impact -- The Vault Investigates Update`,
-    html: `<p>Dear ${name},</p><p>We wanted to share an update on the impact your support has made possible at <strong>The Vault Investigates</strong>.</p><p>This quarter, we have documented [X] new cases, published [Y] reports, and reached [Z] readers across the Philippines, Puerto Rico, and the United States. None of this would be possible without your support.</p><p>Thank you for believing in this work.</p><p>The Vault Investigates Team</p>`,
-  }),
-  "Upgrade Invitation": (name: string) => ({
-    subject: `Exclusive Investigator Access -- The Vault Investigates`,
-    html: `<p>Dear ${name},</p><p>As a valued supporter of <strong>The Vault Investigates</strong>, we'd like to invite you to upgrade to our Investigator tier.</p><p>Investigator members receive unlimited access to our media archive, priority access to new case files, and direct communication with our research team.</p><p>Reply to this email or visit our portal to upgrade.</p><p>The Vault Investigates Team</p>`,
-  }),
-  "Re-engagement": (name: string) => ({
-    subject: `We Miss You -- The Vault Investigates`,
-    html: `<p>Dear ${name},</p><p>We noticed it's been a while since we've heard from you. We wanted to reach out and share what <strong>The Vault Investigates</strong> has been working on.</p><p>Our team has been investigating [current focus area] and we have some exciting developments to share. We'd love to have you back as an active supporter.</p><p>The Vault Investigates Team</p>`,
-  }),
+type Platform = "kofi" | "buymeacoffee" | "grant" | "individual" | "other";
+type DonorStatus = "new" | "thanked" | "follow_up_sent" | "responded" | "declined" | "no_reply";
+
+const PLATFORM_LABELS: Record<Platform, string> = {
+  kofi: "Ko-fi",
+  buymeacoffee: "Buy Me a Coffee",
+  grant: "Grant",
+  individual: "Individual",
+  other: "Other",
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const cls: Record<string, string> = { Pending: "badge-pending", Sent: "badge-sent", Responded: "badge-responded", Archived: "badge-archived" };
-  return <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${cls[status] ?? ""}`}>{status}</span>;
+const PLATFORM_COLORS: Record<Platform, string> = {
+  kofi: "bg-blue-900/40 text-blue-300 border-blue-700",
+  buymeacoffee: "bg-yellow-900/40 text-yellow-300 border-yellow-700",
+  grant: "bg-green-900/40 text-green-300 border-green-700",
+  individual: "bg-purple-900/40 text-purple-300 border-purple-700",
+  other: "bg-zinc-800 text-zinc-300 border-zinc-600",
+};
+
+const STATUS_LABELS: Record<DonorStatus, string> = {
+  new: "New",
+  thanked: "Thanked",
+  follow_up_sent: "Follow-up Sent",
+  responded: "Responded",
+  declined: "Declined",
+  no_reply: "No Reply",
+};
+
+const STATUS_COLORS: Record<DonorStatus, string> = {
+  new: "bg-zinc-800 text-zinc-400",
+  thanked: "bg-blue-900/40 text-blue-300",
+  follow_up_sent: "bg-amber-900/40 text-amber-300",
+  responded: "bg-green-900/40 text-green-300",
+  declined: "bg-red-900/40 text-red-400",
+  no_reply: "bg-zinc-700 text-zinc-400",
+};
+
+function getFollowUpBadge(followUpDate: number | null | undefined, status: DonorStatus) {
+  if (status === "declined" || status === "no_reply") return null;
+  if (!followUpDate) return null;
+  const now = Date.now();
+  const diff = followUpDate - now;
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  if (diff < 0) return { label: `Overdue ${Math.abs(days)}d`, cls: "bg-red-900/60 text-red-300 border border-red-700" };
+  if (days <= 2) return { label: `Due in ${days}d`, cls: "bg-amber-900/60 text-amber-300 border border-amber-700" };
+  return { label: `Follow-up ${new Date(followUpDate).toLocaleDateString()}`, cls: "bg-green-900/40 text-green-300 border border-green-700" };
 }
 
 export default function DonorOutreach() {
-  const utils = trpc.useUtils();
-  const { data: donors = [], isLoading } = trpc.donor.list.useQuery({});
-  const createMutation = trpc.donor.create.useMutation({ onSuccess: () => { utils.donor.list.invalidate(); toast.success("Donor added"); setShowCreate(false); } });
-  const sendEmailMutation = trpc.donor.sendEmail.useMutation({ onSuccess: () => { utils.donor.list.invalidate(); toast.success("Email sent"); setShowCompose(false); } });
-  const updateMutation = trpc.donor.update.useMutation({ onSuccess: () => utils.donor.list.invalidate() });
+  const { user, loading } = useAuth();
+  const [, navigate] = useLocation();
+  // toast is imported from sonner directly
 
-  const [showCreate, setShowCreate] = useState(false);
-  const [showCompose, setShowCompose] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [composeTemplate, setComposeTemplate] = useState("Thank You");
-  const [composeEmail, setComposeEmail] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [form, setForm] = useState({ donorName: "", email: "", platform: "Ko-fi", donationAmount: "", territory: "United States" as any });
+  // Filters
+  const [filterPlatform, setFilterPlatform] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
-  const selected = donors.find((d) => d.id === selectedId);
-  const filtered = statusFilter === "all" ? donors : donors.filter((d) => d.status === statusFilter);
+  // Add contact modal
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState<{ name: string; email: string; platform: Platform; tier: string; country: string; notes: string }>({ name: "", email: "", platform: "kofi", tier: "", country: "", notes: "" });
+
+  // Reply log modal
+  const [replyModal, setReplyModal] = useState<{ id: number; name: string } | null>(null);
+  const [replyStatus, setReplyStatus] = useState<"responded" | "no_reply" | "declined">("responded");
+  const [replyNotes, setReplyNotes] = useState("");
+
+  // Notes editor
+  const [editingNotes, setEditingNotes] = useState<{ id: number; notes: string } | null>(null);
+
+  const { data: donors = [], refetch } = trpc.donors.list.useQuery();
+
+  const createMutation = trpc.donors.create.useMutation({
+    onSuccess: () => { refetch(); setShowAdd(false); setAddForm({ name: "", email: "", platform: "kofi", tier: "", country: "", notes: "" }); toast.success("Donor added"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const updateMutation = trpc.donors.update.useMutation({
+    onSuccess: () => { refetch(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const deleteMutation = trpc.donors.delete.useMutation({
+    onSuccess: () => { refetch(); toast.success("Donor removed"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const logReplyMutation = trpc.donors.logReply.useMutation({
+    onSuccess: () => { refetch(); setReplyModal(null); setReplyNotes(""); toast.success("Reply logged"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const setFollowUpMutation = trpc.donors.setFollowUpDate.useMutation({
+    onSuccess: () => { refetch(); toast.success("Follow-up date set"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const updateNotesMutation = trpc.donors.update.useMutation({
+    onSuccess: () => { refetch(); setEditingNotes(null); toast.success("Notes saved"); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const filtered = useMemo(() => {
+    return donors.filter((d: any) => {
+      if (filterPlatform !== "all" && d.platform !== filterPlatform) return false;
+      if (filterStatus !== "all" && d.status !== filterStatus) return false;
+      if (search && !d.name.toLowerCase().includes(search.toLowerCase()) && !(d.email || "").toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [donors, filterPlatform, filterStatus, search]);
+
+  // Group by platform for summary cards
+  const summary = useMemo(() => {
+    const counts: Record<string, { total: number; contacted: number; responded: number; converted: number }> = {
+      kofi: { total: 0, contacted: 0, responded: 0, converted: 0 },
+      bmac: { total: 0, contacted: 0, responded: 0, converted: 0 },
+      grant: { total: 0, contacted: 0, responded: 0, converted: 0 },
+      other: { total: 0, contacted: 0, responded: 0, converted: 0 },
+    };
+    donors.forEach((d: any) => {
+      const p = d.platform as Platform;
+      if (!counts[p]) return;
+      counts[p].total++;
+      if (d.status !== "not_contacted") counts[p].contacted++;
+      if (d.status === "responded" || d.status === "meeting_set") counts[p].responded++;
+      if (d.status === "converted") counts[p].converted++;
+    });
+    return counts;
+  }, [donors]);
+
+  if (loading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">Loading…</div>;
+  if (!user || user.role !== "admin") { navigate("/"); return null; }
 
   return (
-    <VaultLayout title="Donor Outreach">
-      <div className="space-y-4 max-w-6xl">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      {/* Header */}
+      <div className="border-b border-zinc-800 bg-zinc-900/80 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Donor Outreach</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Donor engagement pipeline</p>
+            <h1 className="text-xl font-bold text-amber-400">Donor Outreach Board</h1>
+            <p className="text-sm text-zinc-400 mt-0.5">Track Ko-fi supporters, Buy Me a Coffee backers, and grant contacts</p>
           </div>
-          <Button size="sm" onClick={() => setShowCreate(true)}><Plus size={14} className="mr-1" /> Add Donor</Button>
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+              ← Admin
+            </Button>
+            <Button size="sm" onClick={() => setShowAdd(true)} className="bg-amber-600 hover:bg-amber-700 text-white">
+              + Add Donor Contact
+            </Button>
+          </div>
         </div>
+      </div>
 
-        <div className="flex gap-2 flex-wrap">
-          {["all", "Pending", "Sent", "Responded", "Archived"].map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)} className={`text-xs px-3 py-1 rounded-full border transition-colors ${statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
-              {s === "all" ? "All" : s}
-            </button>
+      <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {(["kofi", "bmac", "grant", "other"] as Platform[]).map((p) => (
+            <div key={p} className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+              <div className="text-xs text-zinc-500 mb-1">{PLATFORM_LABELS[p]}</div>
+              <div className="text-2xl font-bold text-zinc-100">{summary[p].total}</div>
+              <div className="text-xs text-zinc-500 mt-2 space-y-0.5">
+                <div>{summary[p].contacted} contacted</div>
+                <div>{summary[p].responded} responded</div>
+                <div className="text-green-400">{summary[p].converted} converted</div>
+              </div>
+            </div>
           ))}
         </div>
 
-        <Card className="bg-card border-border">
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="vault-table">
-              <thead><tr><th>Donor</th><th>Platform</th><th>Amount</th><th>Territory</th><th>Status</th><th>Last Template</th><th>Actions</th></tr></thead>
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 items-center">
+          <Input
+            placeholder="Search name or email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-56 bg-zinc-900 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
+          />
+          <Select value={filterPlatform} onValueChange={setFilterPlatform}>
+            <SelectTrigger className="w-44 bg-zinc-900 border-zinc-700 text-zinc-100">
+              <SelectValue placeholder="All Platforms" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-zinc-700">
+              <SelectItem value="all">All Platforms</SelectItem>
+              <SelectItem value="kofi">Ko-fi</SelectItem>
+              <SelectItem value="bmac">Buy Me a Coffee</SelectItem>
+              <SelectItem value="grant">Grant</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-44 bg-zinc-900 border-zinc-700 text-zinc-100">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-zinc-700">
+              <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="thanked">Thanked</SelectItem>
+                              <SelectItem value="follow_up_sent">Follow-up Sent</SelectItem>
+                              <SelectItem value="responded">Responded</SelectItem>
+                              <SelectItem value="declined">Declined</SelectItem>
+                              <SelectItem value="no_reply">No Reply</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-zinc-500">{filtered.length} of {donors.length} contacts</span>
+        </div>
+
+        {/* Table */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-800 text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="text-left px-4 py-3">Name</th>
+                  <th className="text-left px-4 py-3">Platform</th>
+                  <th className="text-left px-4 py-3">Email</th>
+                  <th className="text-left px-4 py-3">Tier / Country</th>
+                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3">Follow-up</th>
+                  <th className="text-left px-4 py-3">Last Contact</th>
+                  <th className="text-left px-4 py-3">Notes</th>
+                  <th className="text-left px-4 py-3">Actions</th>
+                </tr>
+              </thead>
               <tbody>
-                {isLoading ? <tr><td colSpan={7} className="text-center py-8 text-muted-foreground text-sm">Loading...</td></tr>
-                  : filtered.length === 0 ? <tr><td colSpan={7} className="text-center py-8 text-muted-foreground text-sm">No donors yet</td></tr>
-                  : filtered.map((d) => (
-                    <tr key={d.id}>
-                      <td><p className="font-medium text-foreground text-sm">{d.donorName}</p>{d.email && <p className="text-xs text-muted-foreground">{d.email}</p>}</td>
-                      <td className="text-sm text-muted-foreground">{d.platform ?? "--"}</td>
-                      <td className="text-sm text-muted-foreground">{d.donationAmount ? `$${d.donationAmount}` : "--"}</td>
-                      <td className="text-xs text-muted-foreground">{d.territory}</td>
-                      <td><StatusBadge status={d.status} /></td>
-                      <td className="text-xs text-muted-foreground">{d.lastTemplateUsed ?? "--"}</td>
-                      <td>
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => { setSelectedId(d.id); setComposeEmail(d.email ?? ""); setShowCompose(true); }}>
-                            <Mail size={11} className="mr-1" /> Email
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="text-center py-12 text-zinc-500">
+                      No donor contacts yet. Click <strong>+ Add Donor Contact</strong> to get started.
+                    </td>
+                  </tr>
+                )}
+                {filtered.map((donor: any) => {
+                  const followUpBadge = getFollowUpBadge(donor.followUpDate, donor.status);
+                  return (
+                    <tr key={donor.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-zinc-100">{donor.name}</div>
+                        {donor.replyNotes && (
+                          <div className="text-xs text-zinc-500 mt-0.5 italic truncate max-w-[160px]" title={donor.replyNotes}>
+                            "{donor.replyNotes}"
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs px-2 py-0.5 rounded border ${PLATFORM_COLORS[donor.platform as Platform] || PLATFORM_COLORS.other}`}>
+                          {PLATFORM_LABELS[donor.platform as Platform] || donor.platform}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs">{donor.email || "—"}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-xs">
+                        {donor.tier && <div>{donor.tier}</div>}
+                        {donor.country && <div className="text-zinc-500">{donor.country}</div>}
+                        {!donor.tier && !donor.country && "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Select
+                          value={donor.status}
+                          onValueChange={(val) => updateMutation.mutate({ id: donor.id, status: val as DonorStatus })}
+                        >
+                          <SelectTrigger className={`w-36 h-7 text-xs border-0 ${STATUS_COLORS[donor.status as DonorStatus]}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-900 border-zinc-700">
+                            {Object.entries(STATUS_LABELS).map(([val, label]) => (
+                              <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-4 py-3">
+                        {followUpBadge ? (
+                          <span className={`text-xs px-2 py-0.5 rounded ${followUpBadge.cls}`}>{followUpBadge.label}</span>
+                        ) : (
+                          <button
+                            onClick={() => setFollowUpMutation.mutate({ id: donor.id, followUpDate: Date.now() + 7 * 24 * 60 * 60 * 1000 })}
+                            className="text-xs text-zinc-600 hover:text-amber-400 transition-colors"
+                          >
+                            + Set Follow-up
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-zinc-500">
+                        {donor.lastContactedAt ? new Date(donor.lastContactedAt).toLocaleDateString() : "Never"}
+                      </td>
+                      <td className="px-4 py-3 max-w-[160px]">
+                        {editingNotes?.id === donor.id ? (
+                          <div className="flex gap-1">
+                            <Textarea
+                              value={editingNotes?.notes ?? ""}
+                              onChange={(e) => setEditingNotes(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                              className="text-xs bg-zinc-800 border-zinc-700 text-zinc-100 h-16 resize-none"
+                            />
+                            <div className="flex flex-col gap-1">
+                              <Button size="sm" className="h-7 text-xs bg-amber-600 hover:bg-amber-700" onClick={() => editingNotes && updateNotesMutation.mutate({ id: donor.id, internalNotes: editingNotes.notes })}>✓</Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs text-zinc-400" onClick={() => setEditingNotes(null)}>✕</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setEditingNotes({ id: donor.id, notes: (donor.internalNotes as string | null) || "" })}
+                            className="text-xs text-zinc-500 hover:text-amber-400 transition-colors text-left truncate block w-full"
+                            title={donor.internalNotes || "Add notes"}
+                          >
+                            {donor.internalNotes ? (donor.internalNotes as string).slice(0, 40) + ((donor.internalNotes as string).length > 40 ? "…" : "") : <span className="text-zinc-700">+ Add notes</span>}
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1.5 flex-wrap">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                            onClick={() => { setReplyModal({ id: donor.id, name: donor.name }); setReplyStatus("responded"); setReplyNotes(""); }}
+                          >
+                            Log Reply
                           </Button>
-                          <Select value={d.status} onValueChange={(v) => updateMutation.mutate({ id: d.id, status: v as any })}>
-                            <SelectTrigger className="h-6 w-24 text-xs"><SelectValue /></SelectTrigger>
-                            <SelectContent>{["Pending", "Sent", "Responded", "Archived"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                          </Select>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 text-xs text-red-500 hover:bg-red-900/20"
+                            onClick={() => { if (confirm(`Remove ${donor.name}?`)) deleteMutation.mutate({ id: donor.id }); }}
+                          >
+                            ✕
+                          </Button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  );
+                })}
               </tbody>
             </table>
-          </CardContent>
-        </Card>
-
-        {/* Create Modal */}
-        <Dialog open={showCreate} onOpenChange={setShowCreate}>
-          <DialogContent className="bg-card border-border max-w-md">
-            <DialogHeader><DialogTitle>Add Donor</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label className="text-xs">Donor Name *</Label><Input className="mt-1" value={form.donorName} onChange={(e) => setForm({ ...form, donorName: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Email</Label><Input className="mt-1" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-                <div><Label className="text-xs">Platform</Label>
-                  <Select value={form.platform} onValueChange={(v) => setForm({ ...form, platform: v })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>{["Ko-fi", "Buy Me a Coffee", "Patreon", "PayPal", "Other"].map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Donation Amount ($)</Label><Input className="mt-1" type="number" value={form.donationAmount} onChange={(e) => setForm({ ...form, donationAmount: e.target.value })} /></div>
-                <div><Label className="text-xs">Territory</Label>
-                  <Select value={form.territory} onValueChange={(v) => setForm({ ...form, territory: v })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>{["Philippines", "Puerto Rico", "United States", "Other"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button className="w-full" onClick={() => createMutation.mutate({ ...form, donationAmount: form.donationAmount ? parseFloat(form.donationAmount) : undefined })} disabled={!form.donorName || createMutation.isPending}>
-                {createMutation.isPending ? "Adding..." : "Add Donor"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Compose Modal */}
-        <Dialog open={showCompose} onOpenChange={setShowCompose}>
-          <DialogContent className="bg-card border-border max-w-lg">
-            <DialogHeader><DialogTitle>Compose Email -- {selected?.donorName}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label className="text-xs">To</Label><Input className="mt-1" value={composeEmail} onChange={(e) => setComposeEmail(e.target.value)} /></div>
-              <div>
-                <Label className="text-xs">Template</Label>
-                <Select value={composeTemplate} onValueChange={setComposeTemplate}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>{Object.keys(TEMPLATES).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              {selected && (
-                <div className="bg-muted/30 rounded-md p-3 text-xs border border-border">
-                  <p className="font-medium text-foreground mb-1">{TEMPLATES[composeTemplate as keyof typeof TEMPLATES](selected.donorName).subject}</p>
-                  <div dangerouslySetInnerHTML={{ __html: TEMPLATES[composeTemplate as keyof typeof TEMPLATES](selected.donorName).html }} className="text-muted-foreground" />
-                </div>
-              )}
-              <Button className="w-full" onClick={() => {
-                if (!selectedId || !selected || !composeEmail) return;
-                const tpl = TEMPLATES[composeTemplate as keyof typeof TEMPLATES](selected.donorName);
-                sendEmailMutation.mutate({ contactId: selectedId, to: composeEmail, subject: tpl.subject, html: tpl.html, templateName: composeTemplate });
-              }} disabled={!composeEmail || sendEmailMutation.isPending}>
-                <Mail size={14} className="mr-1" /> {sendEmailMutation.isPending ? "Sending..." : "Send Email"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       </div>
-    </VaultLayout>
+
+      {/* Add Donor Modal */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-amber-400">Add Donor Contact</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Name *</label>
+              <Input value={addForm.name} onChange={(e) => setAddForm(f => ({ ...f, name: e.target.value }))} className="bg-zinc-800 border-zinc-700 text-zinc-100" placeholder="Full name or handle" />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Email</label>
+              <Input value={addForm.email} onChange={(e) => setAddForm(f => ({ ...f, email: e.target.value }))} className="bg-zinc-800 border-zinc-700 text-zinc-100" placeholder="email@example.com" />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Platform *</label>
+              <Select value={addForm.platform} onValueChange={(v) => setAddForm(f => ({ ...f, platform: v as Platform }))}>
+                <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-700">
+                  <SelectItem value="kofi">Ko-fi</SelectItem>
+                  <SelectItem value="buymeacoffee">Buy Me a Coffee</SelectItem>
+                  <SelectItem value="grant">Grant</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Tier / Level</label>
+                <Input value={addForm.tier} onChange={(e) => setAddForm(f => ({ ...f, tier: e.target.value }))} className="bg-zinc-800 border-zinc-700 text-zinc-100" placeholder="e.g. Tier 3, Gold" />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Country</label>
+                <Input value={addForm.country} onChange={(e) => setAddForm(f => ({ ...f, country: e.target.value }))} className="bg-zinc-800 border-zinc-700 text-zinc-100" placeholder="e.g. US, PH" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Notes</label>
+              <Textarea value={addForm.notes} onChange={(e) => setAddForm(f => ({ ...f, notes: e.target.value }))} className="bg-zinc-800 border-zinc-700 text-zinc-100 h-20 resize-none" placeholder="Any context about this contact…" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowAdd(false)} className="text-zinc-400">Cancel</Button>
+            <Button
+              onClick={() => createMutation.mutate(addForm)}
+              disabled={!addForm.name || createMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {createMutation.isPending ? "Adding…" : "Add Contact"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reply Log Modal */}
+      <Dialog open={!!replyModal} onOpenChange={(o) => !o && setReplyModal(null)}>
+        <DialogContent className="bg-zinc-900 border-zinc-700 text-zinc-100 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-amber-400">Log Reply — {replyModal?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Outcome</label>
+              <Select value={replyStatus} onValueChange={(v) => setReplyStatus(v as any)}>
+                <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-700">
+                  <SelectItem value="responded">✓ Responded</SelectItem>
+                  <SelectItem value="no_reply">— No Reply</SelectItem>
+                  <SelectItem value="declined">✗ Declined</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 mb-1 block">Notes</label>
+              <Textarea
+                value={replyNotes}
+                onChange={(e) => setReplyNotes(e.target.value)}
+                className="bg-zinc-800 border-zinc-700 text-zinc-100 h-24 resize-none"
+                placeholder="What did they say? Any commitments made?"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setReplyModal(null)} className="text-zinc-400">Cancel</Button>
+            <Button
+              onClick={() => replyModal && logReplyMutation.mutate({ id: replyModal.id, status: replyStatus as "responded" | "no_reply" | "declined", replyNotes })}
+              disabled={logReplyMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {logReplyMutation.isPending ? "Saving…" : "Save Reply"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

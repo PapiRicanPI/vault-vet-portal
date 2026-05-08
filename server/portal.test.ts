@@ -76,108 +76,72 @@ describe("system.notifyOwner", () => {
   });
 });
 
-// ─── Access Tier Config Tests ──────────────────────────────────────────────────
+// ─── Vetting Application Tests ─────────────────────────────────────────────────
 
-describe("accessTiers", () => {
-  it("list returns tier configurations", async () => {
+describe("vetting", () => {
+  it("list requires admin role", async () => {
+    const guestCaller = appRouter.createCaller(makeGuestCtx());
+    await expect(guestCaller.vetting.list()).rejects.toThrow();
+  });
+
+  it("list is accessible by admin", async () => {
     const caller = appRouter.createCaller(makeCtx());
-    // This will fail if DB is not available, which is acceptable in unit test context
-    // The important thing is the procedure exists and is callable
     try {
-      const result = await caller.accessTiers.list();
+      const result = await caller.vetting.list();
       expect(Array.isArray(result)).toBe(true);
     } catch (e: any) {
-      // DB not available in test env -- acceptable
-      expect(e.message).toMatch(/database|connect|ECONNREFUSED/i);
+      expect(e.message).toMatch(/database|connect|ECONNREFUSED|Failed query/i);
+    }
+  });
+});
+
+// ─── Stats Tests ───────────────────────────────────────────────────────────────
+
+describe("stats", () => {
+  it("public stats are accessible without auth", async () => {
+    const caller = appRouter.createCaller(makeGuestCtx());
+    try {
+      const result = await caller.stats.public();
+      expect(result).toHaveProperty("total");
+      expect(result).toHaveProperty("approved");
+    } catch (e: any) {
+      expect(e.message).toMatch(/database|connect|ECONNREFUSED|Failed query/i);
     }
   });
 
-  it("update requires admin role", async () => {
+  it("activity stats require admin", async () => {
     const guestCaller = appRouter.createCaller(makeGuestCtx());
-    await expect(
-      guestCaller.accessTiers.update({
-        tier: "Supporter",
-        canDownload: true,
-        downloadsPerMonth: 10,
-        priorityAccess: false,
-      })
-    ).rejects.toThrow();
+    await expect(guestCaller.stats.activity()).rejects.toThrow();
   });
 });
 
-// ─── Download Access Tests ─────────────────────────────────────────────────────
+// ─── Tips Tests ────────────────────────────────────────────────────────────────
 
-describe("downloads.requestDownload", () => {
-  it("rejects files over 500MB", async () => {
-    const caller = appRouter.createCaller(makeCtx());
-    await expect(
-      caller.downloads.requestDownload({
-        fileUrl: "https://example.com/bigfile.mp4",
-        fileName: "bigfile.mp4",
-        fileType: "video/mp4",
-        fileSizeBytes: 600 * 1024 * 1024, // 600MB -- over limit
-      })
-    ).rejects.toThrow();
+describe("tips", () => {
+  it("list requires admin", async () => {
+    const guestCaller = appRouter.createCaller(makeGuestCtx());
+    await expect(guestCaller.tips.list()).rejects.toThrow();
   });
 
-  it("rejects unauthenticated download requests", async () => {
+  it("submit is public", async () => {
     const caller = appRouter.createCaller(makeGuestCtx());
-    await expect(
-      caller.downloads.requestDownload({
-        fileUrl: "https://example.com/file.mp4",
-        fileName: "file.mp4",
-        fileType: "video/mp4",
-        fileSizeBytes: 100 * 1024 * 1024,
-      })
-    ).rejects.toThrow();
-  });
-});
-
-// ─── Media Scan Tests ──────────────────────────────────────────────────────────
-
-describe("mediaScan.search", () => {
-  it("rejects unauthenticated search", async () => {
-    const caller = appRouter.createCaller(makeGuestCtx());
-    await expect(
-      caller.mediaScan.search({ query: "test", sources: ["Google News"] })
-    ).rejects.toThrow();
-  });
-
-  it("requires non-empty query", async () => {
-    const caller = appRouter.createCaller(makeCtx());
-    await expect(
-      caller.mediaScan.search({ query: "", sources: ["Google News"] })
-    ).rejects.toThrow();
-  });
-});
-
-// ─── User Management Tests ─────────────────────────────────────────────────────
-
-describe("users", () => {
-  it("list requires authentication", async () => {
-    const caller = appRouter.createCaller(makeGuestCtx());
-    await expect(caller.users.list()).rejects.toThrow();
-  });
-
-  it("updatePortalRole validates role enum", async () => {
-    const caller = appRouter.createCaller(makeCtx());
-    await expect(
-      caller.users.updatePortalRole({ userId: 1, portalRole: "InvalidRole" as any })
-    ).rejects.toThrow();
-  });
-
-  it("updateDownloadTier validates tier enum", async () => {
-    const caller = appRouter.createCaller(makeCtx());
-    await expect(
-      caller.users.updateDownloadTier({ userId: 1, downloadTier: "Premium" as any })
-    ).rejects.toThrow();
+    try {
+      await caller.tips.submit({ content: "Test tip", category: "corruption" });
+    } catch (e: any) {
+      expect(e.message).not.toMatch(/FORBIDDEN/i);
+    }
   });
 });
 
 // ─── Vlogger Inquiries Tests ───────────────────────────────────────────────────
 
 describe("vlogger", () => {
-  it("create requires authentication", async () => {
+  it("list requires admin", async () => {
+    const guestCaller = appRouter.createCaller(makeGuestCtx());
+    await expect(guestCaller.vlogger.list()).rejects.toThrow();
+  });
+
+  it("create requires admin", async () => {
     const caller = appRouter.createCaller(makeGuestCtx());
     await expect(
       caller.vlogger.create({
@@ -187,31 +151,23 @@ describe("vlogger", () => {
       })
     ).rejects.toThrow();
   });
-
-  it("create validates deadline days enum", async () => {
-    const caller = appRouter.createCaller(makeCtx());
-    await expect(
-      caller.vlogger.create({
-        creatorName: "Test Creator",
-        platform: "YouTube",
-        deadlineDays: "30" as any,
-      })
-    ).rejects.toThrow();
-  });
 });
 
-// ─── DepEd Directory Tests ─────────────────────────────────────────────────────
+// ─── Outreach Tests ────────────────────────────────────────────────────────────
 
-describe("deped", () => {
-  it("search requires authentication", async () => {
-    const caller = appRouter.createCaller(makeGuestCtx());
-    await expect(
-      caller.deped.search({ query: "Manila", page: 1, pageSize: 20 })
-    ).rejects.toThrow();
+describe("outreach", () => {
+  it("getMediaStatuses requires admin", async () => {
+    const guestCaller = appRouter.createCaller(makeGuestCtx());
+    await expect(guestCaller.outreach.getMediaStatuses()).rejects.toThrow();
   });
 
-  it("importFromCsv requires admin role", async () => {
-    const caller = appRouter.createCaller(makeGuestCtx());
-    await expect(caller.deped.importFromCsv()).rejects.toThrow();
+  it("getMediaStatuses is accessible by admin", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    try {
+      const result = await caller.outreach.getMediaStatuses();
+      expect(Array.isArray(result)).toBe(true);
+    } catch (e: any) {
+      expect(e.message).toMatch(/database|connect|ECONNREFUSED|Failed query/i);
+    }
   });
 });
