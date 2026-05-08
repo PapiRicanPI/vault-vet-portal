@@ -1,0 +1,40 @@
+# The Vault Investigates -- Admin Portal v2.0
+
+## Phase 1: Database Schema & Backend
+- [x] Extend drizzle/schema.ts with all module tables
+- [x] Run migration and apply SQL via webdev_execute_sql
+- [x] Build server/db.ts query helpers for all modules
+- [x] Build server/routers/ feature routers (split by module)
+
+## Phase 2: Core Shell
+- [x] Dark theme + brand colors in index.css
+- [x] DashboardLayout with sidebar (all 10 module nav links)
+- [x] Role-based access: Observer, Researcher, Custodian, Admin
+- [x] App.tsx routes for all modules
+
+## Phase 3: Module Pages
+- [x] Vlogger Inquiries page (table, compose modal, deadline slider, audit trail, last template used)
+- [x] School Outreach page (table, email template, follow-up, CSV import)
+- [x] Media Outreach page (table, 4 templates, Day 1/2/3 follow-up)
+- [x] Donor Outreach page (table, 4 templates, compose modal, pipeline)
+- [x] DepEd Directory page (on-demand CSV import, searchable/filterable table)
+- [x] Resources page /admin/resources (OSINT library: PH, PR, US)
+- [x] Media Scan page /admin/media-scan (multi-source search, save lead, attach to case)
+- [x] Media Downloads page (vetted-only, 500MB limit, audit log)
+- [x] Access Tiers admin panel (configurable tiers, Ko-fi/BMC integration)
+- [x] User Management page (portal role + download tier assignment)
+- [x] Audit Log page (all outreach + download events)
+
+## Phase 4: Integrations
+- [x] Resend email integration (all outreach modules) -- key validated
+- [x] DepEd CSV loader (on-demand, /home/ubuntu/deped_schools.csv)
+- [x] Media Scan: Google News RSS, YouTube, Reddit, Google Web search
+- [x] S3 file storage for media downloads
+- [x] Ko-fi / Buy Me a Coffee tier webhook handler
+
+## Phase 5: Tests & Deployment
+- [x] 18 vitest tests passing (auth, access tiers, downloads, media scan, users, vlogger, DepEd)
+- [x] TypeScript: 0 errors
+- [x] Unicode cleanup across all TSX files
+- [x] Save checkpoint
+- [ ] Publish and bind vet.thevaultinvestigates.cloud domain (user action required)
