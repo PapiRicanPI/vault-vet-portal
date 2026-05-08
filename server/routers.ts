@@ -48,8 +48,9 @@ import { scoreApplication } from "./scoring";
 import { generateVolunteerCertificate } from "./volunteerCertificate";
 import { generateProgramDocument, ProgramDocType } from "./programDocumentPdf";
 import { sendSubmissionConfirmation, sendInvitationEmail, sendApprovalEmail, sendRejectionEmail, sendMoreInfoEmail, sendTeacherConfirmationEmail, sendVolunteerConfirmationEmail, sendVolunteerApprovalEmail, sendVolunteerRejectionEmail, sendReengagementEmail, sendPressReleaseEmail, sendPrincipalFellowshipEmail, sendFollowUpFellowshipEmail, sendVloggerInquiryEmail } from "./email";
-import { getMediaOutreachStatuses, upsertMediaOutreachStatus, getDonorContacts, getDonorContactById, createDonorContact, updateDonorContact, deleteDonorContact, getAllVloggerInquiries, getVloggerInquiryById, createVloggerInquiry, updateVloggerInquiry, deleteVloggerInquiry } from "./db";
+import { getMediaOutreachStatuses, upsertMediaOutreachStatus, getDonorContacts, getDonorContactById, createDonorContact, updateDonorContact, deleteDonorContact, getAllVloggerInquiries, getVloggerInquiryById, createVloggerInquiry, updateVloggerInquiry, deleteVloggerInquiry, getAllScanLeads, saveScanLead, updateScanLeadStatus, deleteScanLead } from "./db";
 import { ENV } from "./_core/env";
+import { callDataApi } from "./_core/dataApi";
 import {
   getAllWeeklyTasks,
   getCompletionsForWeek,
@@ -2037,6 +2038,196 @@ Respond with valid JSON only:
       };
     }),
   }),
-});
+  creatorScan: router({
+    // Run a multi-source scan for a given keyword
+    runScan: adminProcedure
+      .input(z.object({
+        keywords: z.array(z.string()).min(1),
+      }))
+      .mutation(async ({ input }) => {
+        const results: Array<{
+          source: "youtube" | "google_news" | "reddit" | "vimeo";
+          title: string;
+          url: string;
+          channelOrAuthor?: string;
+          description?: string;
+          thumbnail?: string;
+          publishedAt?: string;
+          keyword: string;
+        }> = [];
 
+        for (const keyword of input.keywords) {
+          // ── YouTube ──────────────────────────────────────────────────────
+          try {
+            const ytData = await callDataApi("Youtube/search", {
+              query: { q: keyword, hl: "en", gl: "PH" },
+            }) as any;
+            const contents = ytData?.contents ?? [];
+            for (const item of contents.slice(0, 5)) {
+              if (item?.type === "video" && item.video) {
+                const v = item.video;
+                results.push({
+                  source: "youtube",
+                  title: v.title ?? "Untitled",
+                  url: `https://www.youtube.com/watch?v=${v.videoId}`,
+                  channelOrAuthor: v.channelTitle ?? "",
+                  description: v.descriptionSnippet ?? "",
+                  thumbnail: v.thumbnails?.[0]?.url ?? "",
+                  publishedAt: v.publishedTimeText ?? "",
+                  keyword,
+                });
+              }
+            }
+          } catch (e) {
+            console.warn("[CreatorScan] YouTube error:", e);
+          }
+
+          // ── Google News RSS ───────────────────────────────────────────────
+          try {
+            const encoded = encodeURIComponent(keyword);
+            const rssUrl = `https://news.google.com/rss/search?q=${encoded}&hl=en-PH&gl=PH&ceid=PH:en`;
+            const rssRes = await fetch(rssUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+            if (rssRes.ok) {
+              const xml = await rssRes.text();
+              const items = xml.match(/<item>([\s\S]*?)<\/item>/g) ?? [];
+              for (const item of items.slice(0, 5)) {
+                const titleMatch = item.match(/<title><!\[CDATA\[(.+?)\]\]><\/title>/) ?? item.match(/<title>(.+?)<\/title>/);
+                const linkMatch = item.match(/<link>(.+?)<\/link>/);
+                const descMatch = item.match(/<description><!\[CDATA\[(.+?)\]\]><\/description>/) ?? item.match(/<description>(.+?)<\/description>/);
+                const pubMatch = item.match(/<pubDate>(.+?)<\/pubDate>/);
+                const sourceMatch = item.match(/<source[^>]*>(.+?)<\/source>/);
+                if (titleMatch && linkMatch) {
+                  results.push({
+                    source: "google_news",
+                    title: titleMatch[1].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim(),
+                    url: linkMatch[1].trim(),
+                    channelOrAuthor: sourceMatch?.[1] ?? "",
+                    description: descMatch?.[1]?.replace(/<[^>]+>/g, "").trim() ?? "",
+                    publishedAt: pubMatch?.[1] ?? "",
+                    keyword,
+                  });
+                }
+              }
+            }
+          } catch (e) {
+            console.warn("[CreatorScan] Google News error:", e);
+          }
+
+          // ── Reddit ────────────────────────────────────────────────────────
+          try {
+            const redditRes = await fetch(
+              `https://www.reddit.com/search.json?q=${encodeURIComponent(keyword)}&sort=relevance&limit=5`,
+              { headers: { "User-Agent": "VaultInvestigates/1.0" } }
+            );
+            if (redditRes.ok) {
+              const redditData = await redditRes.json() as any;
+              const posts = redditData?.data?.children ?? [];
+              for (const post of posts) {
+                const p = post?.data;
+                if (!p) continue;
+                results.push({
+                  source: "reddit",
+                  title: p.title ?? "Untitled",
+                  url: `https://www.reddit.com${p.permalink}`,
+                  channelOrAuthor: `r/${p.subreddit}`,
+                  description: p.selftext?.slice(0, 200) ?? "",
+                  thumbnail: p.thumbnail?.startsWith("http") ? p.thumbnail : "",
+                  publishedAt: p.created_utc ? new Date(p.created_utc * 1000).toISOString() : "",
+                  keyword,
+                });
+              }
+            }
+          } catch (e) {
+            console.warn("[CreatorScan] Reddit error:", e);
+          }
+
+          // ── Vimeo ─────────────────────────────────────────────────────────
+          try {
+            const vimeoRes = await fetch(
+              `https://api.vimeo.com/videos?query=${encodeURIComponent(keyword)}&per_page=5&sort=relevant`,
+              { headers: { "Authorization": `Bearer ${ENV.forgeApiKey}`, "Accept": "application/vnd.vimeo.*+json;version=3.4" } }
+            );
+            // Vimeo public search without auth — use their oEmbed-based approach
+            const vimeoSearchRes = await fetch(
+              `https://vimeo.com/search?q=${encodeURIComponent(keyword)}&type=videos`,
+              { headers: { "User-Agent": "Mozilla/5.0" } }
+            );
+            // Fallback: use public Vimeo RSS
+            const vimeoRss = await fetch(
+              `https://vimeo.com/search?q=${encodeURIComponent(keyword)}&format=json`,
+              { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } }
+            );
+            if (vimeoRss.ok) {
+              const vimeoJson = await vimeoRss.json().catch(() => null) as any;
+              const clips = vimeoJson?.clips ?? vimeoJson?.data ?? [];
+              for (const clip of clips.slice(0, 5)) {
+                results.push({
+                  source: "vimeo",
+                  title: clip.name ?? clip.title ?? "Untitled",
+                  url: clip.link ?? clip.url ?? `https://vimeo.com/${clip.id}`,
+                  channelOrAuthor: clip.user?.name ?? "",
+                  description: clip.description ?? "",
+                  thumbnail: clip.pictures?.sizes?.[2]?.link ?? "",
+                  publishedAt: clip.created_time ?? "",
+                  keyword,
+                });
+              }
+            }
+          } catch (e) {
+            console.warn("[CreatorScan] Vimeo error:", e);
+          }
+        }
+
+        return { results, total: results.length };
+      }),
+
+    // Save a lead to the database
+    saveLead: adminProcedure
+      .input(z.object({
+        source: z.enum(["youtube", "google_news", "reddit", "vimeo"]),
+        title: z.string(),
+        url: z.string(),
+        channelOrAuthor: z.string().optional(),
+        description: z.string().optional(),
+        thumbnail: z.string().optional(),
+        publishedAt: z.string().optional(),
+        keyword: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await saveScanLead({
+          source: input.source,
+          title: input.title,
+          url: input.url,
+          channelOrAuthor: input.channelOrAuthor ?? null,
+          description: input.description ?? null,
+          thumbnail: input.thumbnail ?? null,
+          publishedAt: input.publishedAt ?? null,
+          keyword: input.keyword ?? null,
+          leadStatus: "new",
+        });
+        return { success: true };
+      }),
+
+    // List all saved leads
+    listLeads: adminProcedure.query(async () => {
+      return getAllScanLeads();
+    }),
+
+    // Update lead status
+    updateLeadStatus: adminProcedure
+      .input(z.object({ id: z.number(), leadStatus: z.string(), notes: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        await updateScanLeadStatus(input.id, input.leadStatus, input.notes);
+        return { success: true };
+      }),
+
+    // Delete a lead
+    deleteLead: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteScanLead(input.id);
+        return { success: true };
+      }),
+  }),
+});
 export type AppRouter = typeof appRouter;

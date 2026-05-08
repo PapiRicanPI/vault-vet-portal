@@ -1,0 +1,9 @@
+{
+  "query": "\nCREATE TABLE IF NOT EXISTS `creator_scan_leads` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `source` enum('youtube','google_news','reddit','vimeo') NOT NULL,\n  `title` varchar(500) NOT NULL,\n  `url` varchar(1000) NOT NULL,\n  `channelOrAuthor` varchar(255) DEFAULT NULL,\n  `description` text DEFAULT NULL,\n  `thumbnail` varchar(1000) DEFAULT NULL,\n  `publishedAt` varchar(100) DEFAULT NULL,\n  `keyword` varchar(255) DEFAULT NULL,\n  `leadStatus` enum('new','reviewing','contacted','archived') NOT NULL DEFAULT 'new',\n  `notes` text DEFAULT NULL,\n  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute \nCREATE TABLE IF NOT EXISTS `creator_scan_leads` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `source` enum('youtube','google_news','reddit','vimeo') NOT NULL,\n  `title` varchar(500) NOT NULL,\n  `url` varchar(1000) NOT NULL,\n  `channelOrAuthor` varchar(255) DEFAULT NULL,\n  `description` text DEFAULT NULL,\n  `thumbnail` varchar(1000) DEFAULT NULL,\n  `publishedAt` varchar(100) DEFAULT NULL,\n  `keyword` varchar(255) DEFAULT NULL,\n  `leadStatus` enum('new','reviewing','contacted','archived') NOT NULL DEFAULT 'new',\n  `notes` text DEFAULT NULL,\n  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n);\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2366
+}

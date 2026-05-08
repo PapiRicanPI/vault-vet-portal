@@ -1,0 +1,90 @@
+{
+  "query": "SELECT * FROM media_outreach_status LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute SELECT * FROM media_outreach_status LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "contactNum": "1",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "2",
+      "contactNum": "2",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "3",
+      "contactNum": "3",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "4",
+      "contactNum": "4",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "5",
+      "contactNum": "5",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "6",
+      "contactNum": "6",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "7",
+      "contactNum": "7",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "8",
+      "contactNum": "8",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "9",
+      "contactNum": "9",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    },
+    {
+      "id": "10",
+      "contactNum": "10",
+      "mediaStatus": "sent",
+      "lastContactedAt": "2026-04-08 00:00:00",
+      "responseNotes": "NULL",
+      "updatedAt": "2026-05-08 17:07:39"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcontactNum\tmediaStatus\tlastContactedAt\tresponseNotes\tupdatedAt\n1\t1\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n2\t2\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n3\t3\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n4\t4\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n5\t5\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n6\t6\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n7\t7\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n8\t8\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n9\t9\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n10\t10\tsent\t2026-04-08 00:00:00\tNULL\t2026-05-08 17:07:39\n",
+  "stderr": "",
+  "execution_time_ms": 1987
+}

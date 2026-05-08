@@ -1465,6 +1465,54 @@ export default function AdminDashboard() {
           >
             💛 Donors
           </a>
+          <a
+            href="/admin/creator-scan"
+            style={{
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.8rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontFamily: "Cinzel, serif",
+              background: "none",
+              border: "none",
+              borderBottom: "2px solid transparent",
+              color: "var(--vault-muted)",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--vault-gold)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--vault-muted)")}
+          >
+            🔍 Creator Scan
+          </a>
+          <a
+            href="/admin/resources"
+            style={{
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.8rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontFamily: "Cinzel, serif",
+              background: "none",
+              border: "none",
+              borderBottom: "2px solid transparent",
+              color: "var(--vault-muted)",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--vault-gold)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--vault-muted)")}
+          >
+            📚 Resources
+          </a>
         </div>
       </div>
 

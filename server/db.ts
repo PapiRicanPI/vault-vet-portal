@@ -16,6 +16,7 @@ import {
   vettingApplications,
   vloggerInquiries,
   volunteerApplications,
+  creatorScanLeads,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -441,4 +442,30 @@ export async function getRecentlyViewed(userId: number) {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(researcherRecentlyViewed).where(eq(researcherRecentlyViewed.researcherId, userId)).orderBy(desc(researcherRecentlyViewed.viewedAt)).limit(20);
+}
+
+// ─── CREATOR SCAN LEADS ───────────────────────────────────────────────────────
+export async function getAllScanLeads() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(creatorScanLeads).orderBy(desc(creatorScanLeads.savedAt));
+}
+
+export async function saveScanLead(data: typeof creatorScanLeads.$inferInsert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(creatorScanLeads).values(data);
+  return result;
+}
+
+export async function updateScanLeadStatus(id: number, leadStatus: string, notes?: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(creatorScanLeads).set({ leadStatus: leadStatus as any, ...(notes !== undefined ? { notes } : {}) }).where(eq(creatorScanLeads.id, id));
+}
+
+export async function deleteScanLead(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(creatorScanLeads).where(eq(creatorScanLeads.id, id));
 }

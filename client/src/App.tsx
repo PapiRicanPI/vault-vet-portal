@@ -22,6 +22,8 @@ import DonorOutreach from "./pages/DonorOutreach";
 import Receipts from "./pages/Receipts";
 import VloggerInquiries from "./pages/VloggerInquiries";
 import ContactsExport from "./pages/ContactsExport";
+import CreatorScan from "./pages/CreatorScan";
+import Resources from "./pages/Resources";
 
 function Router() {
   return (
@@ -44,6 +46,8 @@ function Router() {
       <Route path={"/receipts"} component={Receipts} />
       <Route path={"/admin/vlogger-inquiries"} component={VloggerInquiries} />
       <Route path={"/admin/contacts-export"} component={ContactsExport} />
+      <Route path={"/admin/creator-scan"} component={CreatorScan} />
+      <Route path={"/admin/resources"} component={Resources} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

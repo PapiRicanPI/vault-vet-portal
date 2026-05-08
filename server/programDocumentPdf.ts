@@ -346,7 +346,7 @@ function getDocumentSections(docType: ProgramDocType, docId: string): Section[] 
     { type: "paragraph", text: "You will be assigned one YouTube channel (provided by the Lead Investigator). Using only the public sources listed below, you will compile a structured Channel Profile Report. You will not contact the channel operator or any person associated with the channel." },
     { type: "heading", text: "Step 1 — YouTube Channel Data", level: 2 },
     { type: "bullet", text: "Channel name, handle, subscriber count, total video count" },
-    { type: "bullet", text: "Date channel was created (YouTube About tab → Joined)" },
+    { type: "bullet", text: "Date channel was created (YouTube About tab > Joined)" },
     { type: "bullet", text: "Country listed, channel description, links in About tab" },
     { type: "bullet", text: "Most recent 5 video titles; most viewed video title and view count" },
     { type: "heading", text: "Step 2 — Social Media Cross-Reference", level: 2 },

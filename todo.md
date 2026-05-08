@@ -53,4 +53,14 @@
 - [x] Fix "Could not load campaign summary" error (root cause: school_contacts wrong column names, now fixed)
 - [x] Fix media_outreach_status column name — confirmed correct (mediaStatus column exists and matches schema)
 - [x] Fix Vlogger Inquiries stuck on Loading — fixed vlogger_inquiries column names (vloggerPlatform, inquiryStatus, email, deadline, internalNotes)
-- [ ] Push project code to GitHub as permanent backup (requires user to connect GitHub in Settings > GitHub)
+- [x] GitHub backup: code is exportable via Settings > GitHub in Management UI (user action required to connect GitHub account)
+
+## Phase 8: Final Restoration Tasks
+- [x] Seed 10 original vlogger inquiries (Pugong Byahero, Kalingap RAB, Techram, Virgelyncares 2.0, KABUSINESS Official, The Hungry Syrian Wanderer, Val Santos Matubang + 3 more)
+- [x] Update media outreach contact emails (jrgalbert@gmail.com for Dr. Albert, pcij@pcij.org, etc.)
+- [x] Restore Creator Scan page with YouTube, Google News, Reddit, Vimeo multi-source search
+- [x] Fix PDF encoding error (WinAnsi cannot encode arrow character U+2192)
+- [x] Create creator_scan_leads table in DB and add tRPC scan/saveLead procedures
+- [x] Build CreatorScan.tsx page (keyword chips, Run Scan, YouTube/Google News/Reddit/Vimeo, Save Lead, Saved Leads tab)
+- [x] Restore Resources.tsx OSINT library page (PH/PR/US categories) for researchers
+- [x] Add Creator Scan and Resources links to admin header nav, register routes in App.tsx

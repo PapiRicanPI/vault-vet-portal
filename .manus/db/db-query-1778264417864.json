@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, creatorName, inquiryStatus FROM vlogger_inquiries ORDER BY id LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute SELECT id, creatorName, inquiryStatus FROM vlogger_inquiries ORDER BY id LIMIT 15;",
+  "rows": [
+    {
+      "id": "1",
+      "creatorName": "Pugong Byahero",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "2",
+      "creatorName": "Kalingap RAB",
+      "inquiryStatus": "sent"
+    },
+    {
+      "id": "3",
+      "creatorName": "Techram",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "4",
+      "creatorName": "Virgelyncares 2.0",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "5",
+      "creatorName": "KABUSINESS Official",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "6",
+      "creatorName": "The Hungry Syrian Wanderer",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "7",
+      "creatorName": "Val Santos Matubang",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "8",
+      "creatorName": "Bayanihan Explorers",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "9",
+      "creatorName": "Poverty Vlog PH",
+      "inquiryStatus": "not_sent"
+    },
+    {
+      "id": "10",
+      "creatorName": "Slum Life Philippines",
+      "inquiryStatus": "not_sent"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcreatorName\tinquiryStatus\n1\tPugong Byahero\tnot_sent\n2\tKalingap RAB\tsent\n3\tTechram\tnot_sent\n4\tVirgelyncares 2.0\tnot_sent\n5\tKABUSINESS Official\tnot_sent\n6\tThe Hungry Syrian Wanderer\tnot_sent\n7\tVal Santos Matubang\tnot_sent\n8\tBayanihan Explorers\tnot_sent\n9\tPoverty Vlog PH\tnot_sent\n10\tSlum Life Philippines\tnot_sent\n",
+  "stderr": "",
+  "execution_time_ms": 1937
+}

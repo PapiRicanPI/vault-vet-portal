@@ -474,3 +474,22 @@ export const vloggerInquiries = mysqlTable("vlogger_inquiries", {
 });
 export type VloggerInquiry = typeof vloggerInquiries.$inferSelect;
 export type InsertVloggerInquiry = typeof vloggerInquiries.$inferInsert;
+
+// ── Creator Scan Leads — saved leads from multi-source scans ──────────────────
+export const creatorScanLeads = mysqlTable("creator_scan_leads", {
+  id: int("id").autoincrement().primaryKey(),
+  source: mysqlEnum("source", ["youtube", "google_news", "reddit", "vimeo"]).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  url: varchar("url", { length: 1000 }).notNull(),
+  channelOrAuthor: varchar("channelOrAuthor", { length: 255 }),
+  description: text("description"),
+  thumbnail: varchar("thumbnail", { length: 1000 }),
+  publishedAt: varchar("publishedAt", { length: 100 }),
+  keyword: varchar("keyword", { length: 255 }),
+  leadStatus: mysqlEnum("leadStatus", ["new", "reviewing", "contacted", "archived"]).default("new").notNull(),
+  notes: text("notes"),
+  savedAt: timestamp("savedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CreatorScanLead = typeof creatorScanLeads.$inferSelect;
+export type InsertCreatorScanLead = typeof creatorScanLeads.$inferInsert;
