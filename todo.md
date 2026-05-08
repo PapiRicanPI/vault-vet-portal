@@ -50,7 +50,7 @@
 - [x] Run all 15 tests passing, TypeScript 0 errors, save checkpoint
 
 ## Phase 7: Bug Fixes & Backup
-- [ ] Create missing `campaigns` table (fixes "Could not load campaign summary" error)
-- [ ] Fix `media_outreach_status` column name mismatch (`mediaStatus` vs `status`) in Contacts Export
-- [ ] Fix Vlogger Inquiries stuck on "Loading..." (query error)
-- [ ] Push project code to GitHub as permanent backup
+- [x] Fix "Could not load campaign summary" error (root cause: school_contacts wrong column names, now fixed)
+- [x] Fix media_outreach_status column name — confirmed correct (mediaStatus column exists and matches schema)
+- [x] Fix Vlogger Inquiries stuck on Loading — fixed vlogger_inquiries column names (vloggerPlatform, inquiryStatus, email, deadline, internalNotes)
+- [ ] Push project code to GitHub as permanent backup (requires user to connect GitHub in Settings > GitHub)

@@ -1,0 +1,58 @@
+{
+  "query": "\nDESCRIBE `media_outreach_status`;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute \nDESCRIBE `media_outreach_status`;\n",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "contactNum",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "UNI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "mediaStatus",
+      "Type": "enum('not_sent','sent','responded','no_reply','meeting')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "not_sent",
+      "Extra": ""
+    },
+    {
+      "Field": "lastContactedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "responseNotes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\ncontactNum\tint\tNO\tUNI\tNULL\t\nmediaStatus\tenum('not_sent','sent','responded','no_reply','meeting')\tNO\t\tnot_sent\t\nlastContactedAt\ttimestamp\tYES\t\tNULL\t\nresponseNotes\ttext\tYES\t\tNULL\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\n",
+  "stderr": "",
+  "execution_time_ms": 1902
+}

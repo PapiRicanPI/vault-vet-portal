@@ -1,0 +1,9 @@
+{
+  "query": "SHOW TABLES LIKE 'campaign%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute SHOW TABLES LIKE 'campaign%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1855
+}
