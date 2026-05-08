@@ -64,3 +64,31 @@
 - [x] Build CreatorScan.tsx page (keyword chips, Run Scan, YouTube/Google News/Reddit/Vimeo, Save Lead, Saved Leads tab)
 - [x] Restore Resources.tsx OSINT library page (PH/PR/US categories) for researchers
 - [x] Add Creator Scan and Resources links to admin header nav, register routes in App.tsx
+
+## Phase 9: May Sprint Backlog (from Project Log v1.1)
+
+### Creator Scan Enhancements
+- [ ] Weekly Monday auto-scan job (creatorScanJob.ts) — runs on schedule, auto-deduplicates by URL, sends owner notification summary to vaultinvestigates@protonmail.com
+- [ ] "Promote to Inquiry" button on Creator Scan Saved Leads tab (visible for Lead/Verified status only) — confirmation modal with evidence tier selector, notes override, creates VloggerInquiry, marks lead as Coded
+- [ ] Export Creator Scan leads to CSV (Download CSV button on Saved Leads tab)
+- [ ] Add Country (creator) and Country (subjects) columns to Saved Leads table
+- [ ] Add Discovery Source column to Saved Leads table
+
+### Resources Page
+- [ ] Verify Resources page is fully populated with all categories: OSINT, Philippine sources, PR sources, US sources, Forensics, Legal, OPSEC — currently has content but needs visual confirmation in browser
+
+### Vlogger Inquiries Enhancements
+- [ ] Deadline slider (7 / 14 / 21 days) in Compose modal
+- [ ] Last Template Used column in Vlogger Inquiries table
+- [ ] Outreach audit trail — auto-log timestamped note to internal notes on email send
+
+### School Outreach Enhancements
+- [ ] CSV bulk import for School Outreach contacts (instead of one-by-one manual entry)
+- [ ] Horizontal scroll indicator on School Outreach table (animated gold arrow fades in when columns are hidden)
+
+### Admin Dashboard Layout
+- [ ] Widen main content wrapper from max-w-6xl to max-w-[1600px] to accommodate wide tables
+- [ ] Fix actions column cutoff in School Outreach and Media Outreach tables (minWidth on tables and action cells)
+
+### Known Issues to Monitor
+- [ ] Scan all PDF templates for em-dash (—) characters that may cause WinAnsi encoding errors (same class of bug as the → fix)
