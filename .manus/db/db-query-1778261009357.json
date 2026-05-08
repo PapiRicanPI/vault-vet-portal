@@ -1,0 +1,25 @@
+{
+  "query": "\nSELECT COUNT(*) as media_count FROM `media_outreach_status`;\nSELECT COUNT(*) as tips_count FROM `tips`;\nSELECT COUNT(*) as vetting_count FROM `vetting_applications`;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute \nSELECT COUNT(*) as media_count FROM `media_outreach_status`;\nSELECT COUNT(*) as tips_count FROM `tips`;\nSELECT COUNT(*) as vetting_count FROM `vetting_applications`;\n",
+  "rows": [
+    {
+      "media_count": "10"
+    },
+    {
+      "media_count": "tips_count"
+    },
+    {
+      "media_count": "0"
+    },
+    {
+      "media_count": "vetting_count"
+    },
+    {
+      "media_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "media_count\n10\ntips_count\n0\nvetting_count\n0\n",
+  "stderr": "",
+  "execution_time_ms": 2263
+}

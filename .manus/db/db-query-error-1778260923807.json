@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Step 1: Update existing status values to match new enum\nUPDATE `school_contacts` SET `status` = 'not_sent' WHERE `status` IN ('Pending', 'pending');\nUPDATE `school_contacts` SET `status` = 'sent' WHERE `status` IN ('Sent', 'Follow-up Sent');\nUPDATE `school_contacts` SET `status` = 'responded' WHERE `status` = 'Responded';\nUPDATE `school_contacts` SET `status` = 'no_reply' WHERE `status` = 'Archived';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute \n-- Step 1: Update existing status values to match new enum\nUPDATE `school_contacts` SET `status` = 'not_sent' WHERE `status` IN ('Pending', 'pending');\nUPDATE `school_contacts` SET `status` = 'sent' WHERE `status` IN ('Sent', 'Follow-up Sent');\nUPDATE `school_contacts` SET `status` = 'responded' WHERE `status` = 'Responded';\nUPDATE `school_contacts` SET `status` = 'no_reply' WHERE `status` = 'Archived';\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 3: Data truncated for column '%s' at row %d"
+  ]
+}

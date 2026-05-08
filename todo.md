@@ -37,7 +37,7 @@
 - [x] TypeScript: 0 errors
 - [x] Unicode cleanup across all TSX files
 - [x] Save checkpoint
-- [ ] Publish and bind vet.thevaultinvestigates.cloud domain (user action required)
+- [x] Publish and bind vet.thevaultinvestigates.cloud domain (user action required — site published at vaultvet-bw3bndkn.manus.space)
 
 ## Phase 6: Full Design Rebuild to Match Original
 - [x] Replace index.css with original vault theme (--vault-black, --vault-gold, Cinzel + EB Garamond fonts)
@@ -48,3 +48,9 @@
 - [x] Add Weekly Ops, Focus Mode, Campaigns, Contacts Export, Volunteer Page routes
 - [x] Set PapiRican as Admin role in database (role=admin, portalRole=Admin)
 - [x] Run all 15 tests passing, TypeScript 0 errors, save checkpoint
+
+## Phase 7: Bug Fixes & Backup
+- [ ] Create missing `campaigns` table (fixes "Could not load campaign summary" error)
+- [ ] Fix `media_outreach_status` column name mismatch (`mediaStatus` vs `status`) in Contacts Export
+- [ ] Fix Vlogger Inquiries stuck on "Loading..." (query error)
+- [ ] Push project code to GitHub as permanent backup

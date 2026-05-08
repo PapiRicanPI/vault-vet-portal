@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `media_outreach_status` \n  CHANGE COLUMN `status` `mediaStatus` ENUM('not_sent','sent','responded','no_reply','meeting') NOT NULL DEFAULT 'not_sent';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 35UUpwuqzcR4pq1.5bba65fc9ecc --database Bw3BNDkNPz5s9CrhT57U6u --execute ALTER TABLE `media_outreach_status` \n  CHANGE COLUMN `status` `mediaStatus` ENUM('not_sent','sent','responded','no_reply','meeting') NOT NULL DEFAULT 'not_sent';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'status' in 'media_outreach_status'"
+  ]
+}
