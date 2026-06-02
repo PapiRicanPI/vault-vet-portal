@@ -198,21 +198,149 @@ export async function sendVolunteerRejectionEmail(
 
 // ─── School Outreach Emails ───────────────────────────────────────────────────
 
+// Helper to wrap any outreach email in a premium, compliant dark theme
+function wrapOutreachEmail(contentHtml: string, titleText: string, subtitleText: string): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${titleText}</title>
+</head>
+<body style="background-color: #050505; color: #e5e5e5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 40px 20px;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #000000; border: 1px solid #1a1a1a; border-radius: 8px; padding: 30px; border-collapse: collapse;">
+    <tr>
+      <td>
+        <!-- Header -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-bottom: 25px;">
+          <tr>
+            <td>
+              <span style="font-family: monospace; font-size: 11px; color: #ff5722; text-transform: uppercase; letter-spacing: 1.5px;">${subtitleText}</span>
+              <h1 style="margin: 5px 0 0 0; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">${titleText}</h1>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Body Content -->
+        ${contentHtml}
+
+        <!-- Stripe Support Banner -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 30px; border-top: 1px solid #2d2d2d; padding-top: 20px;">
+          <tr>
+            <td style="padding: 20px; background-color: #0d0d0d; border-radius: 6px; border: 1px solid #1a1a1a; text-align: center;">
+              <p style="margin: 0 0 10px 0; font-family: monospace; font-size: 11px; color: #ff5722; text-transform: uppercase; letter-spacing: 1px;">⚡ Reader-Supported Research</p>
+              <p style="margin: 0 0 15px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: #a0a0a0; line-height: 1.5;">
+                The Vault Investigates is an independent, reader-funded platform. We receive no institutional backing. If you value our public accountability research, consider supporting our server costs and public records requests with a small tip.
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; border-collapse: collapse;">
+                <tr>
+                  <td align="center" style="background-color: #ff5722; border-radius: 4px;">
+                    <a href="https://vet.thevaultinvestigates.cloud/support" target="_blank" style="display: inline-block; padding: 8px 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 4px;">Support Our Work</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 export async function sendPrincipalFellowshipEmail(
   to: string,
   principalName: string,
   schoolName: string,
-  district: string
+  district: string,
+  lang: "en" | "tl" = "en"
 ): Promise<{ success: boolean; emailId?: string; error?: string }> {
-  const emailId = await sendViaResend(
-    to,
-    "Fellowship Opportunity — The Vault Investigates",
-    `<p>Dear ${principalName},</p>
-    <p>We are reaching out from The Vault Investigates to introduce a fellowship opportunity for students at ${schoolName} (${district}).</p>
-    <p>The Vault Investigates is a non-partisan investigative journalism initiative focused on accountability and truth. We are seeking student volunteers to assist with research, documentation, and outreach.</p>
-    <p>We would welcome the opportunity to discuss this further. Please reply to this email or contact us at <a href="mailto:${FROM_EMAIL}">${FROM_EMAIL}</a>.</p>
-    <p>— The Vault Investigates Team</p>`
-  );
+  const operatorName = process.env.OWNER_NAME || "Papi Rican Blue";
+  const lastName = principalName.split(" ").pop() || principalName;
+
+  let subject = "";
+  let title = "";
+  let subtitle = "THE VAULT // CIVIC JOURNALISM FELLOWSHIP";
+  let content = "";
+
+  if (lang === "tl") {
+    subject = `Paanyaya para sa Civic Journalism Fellowship Program / ${schoolName}`;
+    title = "Pinalalakas ang Boses ng mga Estudyante.";
+    content = `
+      <p style="font-size: 14px; line-height: 1.6; color: #e5e5e5;">Mahal na Principal ${lastName},</p>
+      
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        Sana ay nasa mabuti kayong kalagayan. Ako si <strong>${operatorName}</strong>, program director ng <strong>The Vault Investigates</strong>. Sumusulat kami upang anyayahan ang mga piling mag-aaral ng Senior High School mula sa <strong>${schoolName}</strong> na mag-apply para sa aming nalalapit na <strong>Civic Journalism Fellowship Program</strong>.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        Ang programang ito ay nagbibigay sa mga mag-aaral ng ligtas at aktwal na pagsasanay sa digital research, pagpapatunay ng pampublikong dokumento, at media literacy. Sa ilalim ng mahigpit na pahintulot ng mga magulang at propesyonal na gabay, matututuhan ng mga mag-aaral kung paano magsuri ng pampublikong dokumento, tumukoy ng pagsasamantala sa media, at sumuporta sa makatotohanang pagbabalita.
+      </p>
+
+      <div style="background-color: #0d0d0d; border-left: 3px solid #ff5722; padding: 15px; border-radius: 0 4px 4px 0; margin: 15px 0;">
+        <h3 style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff;">Mga Tampok ng Programa:</h3>
+        <ul style="margin: 0; padding-left: 15px; font-size: 12px; color: #a0a0a0; line-height: 1.6;">
+          <li>100% remote, flexible na mga gawain sa pananaliksik (tinatayang 3-5 oras kada linggo).</li>
+          <li>Komprehensibong pagsasanay sa Open Source Intelligence (OSINT).</li>
+          <li>Opisyal na <strong>Certificate of Accomplishment</strong> pagkatapos ng programa.</li>
+        </ul>
+      </div>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        Maaaring suriin ng mga interesadong mag-aaral ang kurikulum at isumite ang kanilang aplikasyon nang direkta sa aming portal: <a href="https://vet.thevaultinvestigates.cloud/volunteer" target="_blank" style="color: #ff5722; text-decoration: underline;">vet.thevaultinvestigates.cloud/volunteer</a>.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+        Maraming salamat sa inyong pamumuno at dedikasyon sa edukasyong sibil. Huwag mag-atubiling makipag-ugnayan kung nais ninyong mag-iskedyul ng mabilis na tawag upang talakayin ang mga detalye ng programa.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+        Warm regards,<br>
+        <strong>${operatorName}</strong><br>
+        <span style="font-size: 11px; color: #888888; font-family: monospace;">The Vault Investigates Team</span>
+      </p>
+    `;
+  } else {
+    subject = `Invitation to join the Civic Journalism Fellowship Program / ${schoolName}`;
+    title = "Empowering Student Voices.";
+    content = `
+      <p style="font-size: 14px; line-height: 1.6; color: #e5e5e5;">Dear Principal ${lastName},</p>
+      
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        I hope this email finds you well. My name is <strong>${operatorName}</strong>, program director at <strong>The Vault Investigates</strong>. We are writing to invite select Senior High School students from <strong>${schoolName}</strong> to apply for our upcoming <strong>Civic Journalism Fellowship Program</strong>.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        This fellowship provides students with hands-on, secure training in digital research, public records verification, and media literacy. Under strict parental consent and professional guidance, student volunteers will learn how to analyze public documents, identify media exploitation, and support factual reporting.
+      </p>
+
+      <div style="background-color: #0d0d0d; border-left: 3px solid #ff5722; padding: 15px; border-radius: 0 4px 4px 0; margin: 15px 0;">
+        <h3 style="margin: 0 0 8px 0; font-size: 13px; color: #ffffff;">Fellowship Highlights:</h3>
+        <ul style="margin: 0; padding-left: 15px; font-size: 12px; color: #a0a0a0; line-height: 1.6;">
+          <li>100% remote, flexible research tasks (approx. 3-5 hours/week).</li>
+          <li>Comprehensive training in Open Source Intelligence (OSINT).</li>
+          <li>Official <strong>Certificate of Accomplishment</strong> upon program completion.</li>
+        </ul>
+      </div>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+        Interested students can review the full curriculum and submit their applications directly at our public portal: <a href="https://vet.thevaultinvestigates.cloud/volunteer" target="_blank" style="color: #ff5722; text-decoration: underline;">vet.thevaultinvestigates.cloud/volunteer</a>.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+        Thank you for your leadership and dedication to civic education. Please feel free to reach out if you would like to schedule a brief call to discuss the program details.
+      </p>
+
+      <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+        Warm regards,<br>
+        <strong>${operatorName}</strong><br>
+        <span style="font-size: 11px; color: #888888; font-family: monospace;">The Vault Investigates Team</span>
+      </p>
+    `;
+  }
+
+  const html = wrapOutreachEmail(content, title, subtitle);
+  const emailId = await sendViaResend(to, subject, html);
   if (emailId) return { success: true, emailId };
   return { success: false, error: "Failed to send via Resend" };
 }
@@ -223,14 +351,41 @@ export async function sendFollowUpFellowshipEmail(
   schoolName: string,
   _district: string
 ): Promise<{ success: boolean; emailId?: string; error?: string }> {
-  const emailId = await sendViaResend(
-    to,
-    "Follow-Up: Fellowship Opportunity — The Vault Investigates",
-    `<p>Dear ${principalName},</p>
-    <p>We are following up on our previous message regarding a fellowship opportunity for students at ${schoolName}.</p>
-    <p>If you have any questions or would like more information, please do not hesitate to reach out.</p>
-    <p>— The Vault Investigates Team</p>`
-  );
+  const operatorName = process.env.OWNER_NAME || "Papi Rican Blue";
+  const lastName = principalName.split(" ").pop() || principalName;
+
+  const subject = `Follow-Up: Fellowship Opportunity — The Vault Investigates`;
+  const title = "Continuing the Conversation.";
+  const subtitle = "THE VAULT // CIVIC JOURNALISM FELLOWSHIP";
+  
+  const content = `
+    <p style="font-size: 14px; line-height: 1.6; color: #e5e5e5;">Dear Principal ${lastName},</p>
+    
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      We are following up on our previous message regarding the remote, educational <strong>Civic Journalism Fellowship Program</strong> for students at <strong>${schoolName}</strong>.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      We understand that school administrations manage extremely demanding schedules. However, we wanted to ensure our invitation was received, as we are allocating a limited number of fellowship slots for select schools in your division.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      This program requires no school resources or funding, is fully remote/asynchronous, and is designed to build critical media verification skills. Interested students can apply at: <a href="https://vet.thevaultinvestigates.cloud/volunteer" target="_blank" style="color: #ff5722; text-decoration: underline;">vet.thevaultinvestigates.cloud/volunteer</a>.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+      If you have any questions or would like to schedule a quick 5-minute introductory call, please feel free to reply directly to this email.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+      Warm regards,<br>
+      <strong>${operatorName}</strong><br>
+      <span style="font-size: 11px; color: #888888; font-family: monospace;">The Vault Investigates Team</span>
+    </p>
+  `;
+
+  const html = wrapOutreachEmail(content, title, subtitle);
+  const emailId = await sendViaResend(to, subject, html);
   if (emailId) return { success: true, emailId };
   return { success: false, error: "Failed to send via Resend" };
 }
@@ -241,14 +396,37 @@ export async function sendFinalNudgeFellowshipEmail(
   schoolName: string,
   _district: string
 ): Promise<{ success: boolean; emailId?: string; error?: string }> {
-  const emailId = await sendViaResend(
-    to,
-    "Final Notice: Fellowship Opportunity — The Vault Investigates",
-    `<p>Dear ${principalName},</p>
-    <p>This is our final follow-up regarding the fellowship opportunity for students at ${schoolName}. We understand you are busy and we respect your time.</p>
-    <p>If you are interested, please reply at your convenience. We will not contact you again after this message unless you reach out first.</p>
-    <p>— The Vault Investigates Team</p>`
-  );
+  const operatorName = process.env.OWNER_NAME || "Papi Rican Blue";
+  const lastName = principalName.split(" ").pop() || principalName;
+
+  const subject = `Final Notice: Fellowship Opportunity — The Vault Investigates`;
+  const title = "Final Invitation.";
+  const subtitle = "THE VAULT // CIVIC JOURNALISM FELLOWSHIP";
+
+  const content = `
+    <p style="font-size: 14px; line-height: 1.6; color: #e5e5e5;">Dear Principal ${lastName},</p>
+    
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      This is our final follow-up regarding the remote, educational <strong>Civic Journalism Fellowship Program</strong> for students at <strong>${schoolName}</strong>. We understand you are incredibly busy and we deeply respect your time.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      We will close applications for this cohort shortly. If any students from your school are interested in digital OSINT research and media verification, they are welcome to apply before the deadline at: <a href="https://vet.thevaultinvestigates.cloud/volunteer" target="_blank" style="color: #ff5722; text-decoration: underline;">vet.thevaultinvestigates.cloud/volunteer</a>.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc;">
+      If we do not hear from you, we will not contact you again regarding this cohort. Thank you for your dedication to your students and your leadership in civic education.
+    </p>
+
+    <p style="font-size: 13px; line-height: 1.6; color: #cccccc; margin-top: 20px;">
+      Warm regards,<br>
+      <strong>${operatorName}</strong><br>
+      <span style="font-size: 11px; color: #888888; font-family: monospace;">The Vault Investigates Team</span>
+    </p>
+  `;
+
+  const html = wrapOutreachEmail(content, title, subtitle);
+  const emailId = await sendViaResend(to, subject, html);
   if (emailId) return { success: true, emailId };
   return { success: false, error: "Failed to send via Resend" };
 }

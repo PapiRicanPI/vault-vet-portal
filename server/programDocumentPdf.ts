@@ -29,12 +29,14 @@ const MID_GRAY  = rgb(0.50, 0.50, 0.50);
 export type ProgramDocType =
   | "consent_form"
   | "confidentiality_agreement"
+  | "release_of_liability"
   | "sample_research_task"
   | "program_summary";
 
 const DOC_LABELS: Record<ProgramDocType, string> = {
   consent_form: "Parental / Guardian Consent Form",
-  confidentiality_agreement: "Research Confidentiality Agreement",
+  confidentiality_agreement: "Research Confidentiality Agreement & NDA",
+  release_of_liability: "Release of Liability & Assumption of Risk",
   sample_research_task: "Sample Research Task — OSINT Research Trainee",
   program_summary: "Program Summary",
 };
@@ -42,6 +44,7 @@ const DOC_LABELS: Record<ProgramDocType, string> = {
 const DOC_SUBTITLES: Record<ProgramDocType, string> = {
   consent_form: "Civic Journalism Fellowship Program · The Vault Investigates",
   confidentiality_agreement: "Civic Journalism Fellowship Program · The Vault Investigates",
+  release_of_liability: "Civic Journalism Fellowship Program · The Vault Investigates",
   sample_research_task: "Civic Journalism Fellowship Program · The Vault Investigates",
   program_summary: "Civic Journalism Fellowship Program · The Vault Investigates",
 };
@@ -297,27 +300,30 @@ function getDocumentSections(docType: ProgramDocType, docId: string): Section[] 
 
   if (docType === "confidentiality_agreement") {
     return [
-      { type: "note", text: "This agreement protects the active investigation your student is contributing to — not the student. It does not restrict your child from disclosing their participation, claiming the experience on a college application, or showing their completed work in a portfolio." },
+      { type: "note", text: "This strict Non-Disclosure Agreement (NDA) protects the active, sensitive investigations of The Vault EcoSystem. It does not restrict your child from claiming the experience on college applications or resumes, but strictly forbids exporting or discussing case details." },
       { type: "spacer", height: 10 },
-      { type: "heading", text: "Purpose", level: 1 },
-      { type: "paragraph", text: "The Vault Investigates conducts active investigative journalism. The integrity of an ongoing investigation depends on the confidentiality of certain internal information — specifically, the direction of the research, the sources being examined, and the methodology being applied. This agreement defines what is confidential, what the student agrees to protect, and what the student retains the full right to disclose." },
-      { type: "heading", text: "Confidential Information", level: 1 },
-      { type: "bullet", text: "The identity of any individual or organization being researched, where not yet publicly disclosed" },
-      { type: "bullet", text: "The specific research direction, methodology, or strategy of the assigned investigation" },
-      { type: "bullet", text: "Internal communications between the student and the Lead Investigator" },
-      { type: "bullet", text: "The identity of any other student trainees or volunteers in the program" },
-      { type: "bullet", text: "Any unpublished findings, draft documents, or interim research conclusions" },
-      { type: "heading", text: "What This Agreement Does NOT Restrict", level: 1 },
-      { type: "bullet", text: "Disclosing participation in the Fellowship Program on college applications, resumes, or social media" },
-      { type: "bullet", text: "Including completed research deliverables in a personal portfolio" },
-      { type: "bullet", text: "Discussing general skills learned: OSINT, document research, source verification" },
-      { type: "bullet", text: "Reporting any concern about the program to a parent, school, or relevant authority" },
-      { type: "heading", text: "Student Obligations", level: 1 },
-      { type: "paragraph", text: "The student agrees, for the duration of the program and for twelve (12) months following completion, to: not disclose Confidential Information to any third party; not publish or distribute Confidential Information through any channel; store provided documents securely; and promptly report any unauthorized disclosure to the Lead Investigator." },
-      { type: "heading", text: "Duration & Governing Law", level: 1 },
+      { type: "heading", text: "1. Purpose & Scope", level: 1 },
+      { type: "paragraph", text: "The Vault Investigates conducts active investigative journalism. The integrity of an ongoing investigation depends on absolute confidentiality. This agreement defines what is confidential, what the student agrees to protect, and the strict rules against exporting or discussing leads or investigation details outside of the official, secure Vault EcoSystem." },
+      { type: "heading", text: "2. Confidential Information", level: 1 },
+      { type: "bullet", text: "The identity of any individual, company, or organization being researched, where not yet publicly disclosed" },
+      { type: "bullet", text: "The specific research direction, leads, methodology, or strategy of the assigned investigation" },
+      { type: "bullet", text: "Internal communications between the student and the Lead Investigator or other team members" },
+      { type: "bullet", text: "Any unpublished findings, draft documents, database entries, or interim research conclusions" },
+      { type: "bullet", text: "The identity of any other student trainees, volunteers, or sources in the program" },
+      { type: "heading", text: "3. Strict EcoSystem Boundaries & Restrictions", level: 1 },
+      { type: "bullet", text: "The student shall NOT discuss, post, or share any active investigations, leads, or case files on social media, personal messaging apps, or any platform outside of the official communication channels of The Vault EcoSystem." },
+      { type: "bullet", text: "The student shall NOT take, print, screenshot, download, copy, or export any leads, files, database records, or investigation materials for use outside of The Vault EcoSystem." },
+      { type: "bullet", text: "All research and work must be conducted solely within the provided secure web portals and official tools. Transfer of any investigative material to external personal drives, local folders, or public storage is strictly prohibited." },
+      { type: "heading", text: "4. What This Agreement Does NOT Restrict", level: 1 },
+      { type: "bullet", text: "Disclosing participation in the Fellowship Program on college applications, resumes, or professional profiles" },
+      { type: "bullet", text: "Discussing general skills learned (such as OSINT, public records search, and document verification)" },
+      { type: "bullet", text: "Reporting any safety, ethical, or program-related concern to a parent, school counselor, or legal authority" },
+      { type: "heading", text: "5. Student Obligations & Enforcement", level: 1 },
+      { type: "paragraph", text: "The student agrees, for the duration of the program and for twelve (12) months following completion, to maintain absolute confidentiality. Any violation of these terms—including exporting data, printing files, or discussing leads externally—will result in immediate termination from the program, revocation of all certificates, notification to the student's school administration, and potential legal action under applicable laws of the Republic of the Philippines." },
+      { type: "heading", text: "6. Duration & Governing Law", level: 1 },
       { type: "paragraph", text: `This agreement is effective from the date of signature and remains in force for twelve (12) months following the conclusion of the student's participation. It is governed by the laws of the Republic of the Philippines.` },
-      { type: "heading", text: "Signatures", level: 1 },
-      { type: "paragraph", text: "Because the student is a minor, this agreement requires co-signature by a parent or legal guardian to be binding." },
+      { type: "heading", text: "7. Signatures & Co-Signature", level: 1 },
+      { type: "paragraph", text: "Because the student is a minor, this agreement requires co-signature by a parent or legal guardian to be legally binding." },
       { type: "spacer", height: 8 },
       { type: "signature_line", text: "Student Full Name" },
       { type: "signature_line", text: "School Name" },
@@ -326,7 +332,34 @@ function getDocumentSections(docType: ProgramDocType, docId: string): Section[] 
       { type: "signature_line", text: "Parent / Guardian Signature & Date" },
       { type: "signature_line", text: "Lead Investigator Signature & Date" },
       { type: "spacer", height: 8 },
-      { type: "note", text: `Agreement version: April ${year} · The Vault Investigates · Document ID: ${docId}` },
+      { type: "note", text: `Agreement version: June ${year} (Strict EcoSystem NDA) · The Vault Investigates · Document ID: ${docId}` },
+    ];
+  }
+
+  if (docType === "release_of_liability") {
+    return [
+      { type: "note", text: "This Release of Liability and Assumption of Risk is a mandatory legal form for participation in the Civic Journalism Fellowship Program. It must be signed by both the student and their parent/guardian." },
+      { type: "spacer", height: 10 },
+      { type: "heading", text: "1. Voluntary Participation", level: 1 },
+      { type: "paragraph", text: "I, the parent/guardian, along with my child (the student), acknowledge that participation in the Civic Journalism Fellowship Program is entirely voluntary. We understand that this is an educational, remote, and asynchronous volunteer fellowship program, and does not constitute employment or create any employment relationship." },
+      { type: "heading", text: "2. Assumption of Risk", level: 1 },
+      { type: "paragraph", text: "We understand that the program involves online open-source research (OSINT), data verification, and document analysis using publicly available sources. While all tasks are remote and strictly supervised, we assume all risks associated with online research, computer use, and digital collaboration in connection with the program." },
+      { type: "heading", text: "3. Release, Waiver & Hold Harmless", level: 1 },
+      { type: "paragraph", text: "In consideration of the student being permitted to participate in the program, we hereby release, waive, and forever discharge The Vault Investigates, its Lead Investigator, its editorial staff, and all associated entities from any and all liability, claims, demands, actions, or causes of action arising out of or related to any loss, damage, or injury that may be sustained by the student during or as a result of their participation in the program." },
+      { type: "heading", text: "4. No Compensation or Benefits", level: 1 },
+      { type: "paragraph", text: "We acknowledge and agree that the student is participating as a volunteer trainee for educational purposes. The student is not entitled to any financial compensation, wages, stipend, or health/accident insurance benefits. No promise of future employment, paid roles, or compensation has been made." },
+      { type: "heading", text: "5. Integrity & Portal Usage", level: 1 },
+      { type: "paragraph", text: "We agree that the student will adhere to all program guidelines, honor codes, and safety protocols. All work must be submitted through the official portal. The Vault Investigates reserves the right to terminate the student's participation at any time for non-compliance with guidelines, ethical violations, or breach of confidentiality." },
+      { type: "heading", text: "6. Acknowledgment of Understanding", level: 1 },
+      { type: "paragraph", text: "By signing below, we confirm that we have read this Release of Liability and Assumption of Risk, fully understand its terms, and understand that we are giving up substantial rights, including the right to sue." },
+      { type: "spacer", height: 8 },
+      { type: "signature_line", text: "Student Full Name" },
+      { type: "signature_line", text: "School Name" },
+      { type: "signature_line", text: "Student Signature & Date" },
+      { type: "signature_line", text: "Parent / Guardian Full Name" },
+      { type: "signature_line", text: "Parent / Guardian Signature & Date" },
+      { type: "spacer", height: 8 },
+      { type: "note", text: `Release version: June ${year} · The Vault Investigates · Document ID: ${docId}` },
     ];
   }
 

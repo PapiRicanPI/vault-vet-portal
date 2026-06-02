@@ -1,0 +1,632 @@
+[
+  {
+    "schoolName": "Arellano University(Juan Sumulong High School) -",
+    "principalName": "Anita Reyes",
+    "district": "Manila Division",
+    "email": "info@arellanounivers.edu.ph",
+    "phone": "(02) 8859-5506",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Bethel High School  Knox Grade School -",
+    "principalName": "Eduardo Aquino",
+    "district": "Manila Division",
+    "email": "info@bethelhighschoo.edu.ph",
+    "phone": "(02) 8242-2679",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Central Institute of Technology (CIT Colleges) Central Institute of Technology",
+    "principalName": "Angelito Ocampo",
+    "district": "Manila Division",
+    "email": "info@centralinstitut.edu.ph",
+    "phone": "(02) 8704-7912",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Philippine College of Criminology High School Plaridel High School",
+    "principalName": "Juan Reyes",
+    "district": "Manila Division",
+    "email": "info@philippinecolle.edu.ph",
+    "phone": "(02) 8195-4582",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Maranatha Christian Academy of Manila, Inc. -",
+    "principalName": "Corazon Guerrero",
+    "district": "Manila Division",
+    "email": "info@maranathachrist.edu.ph",
+    "phone": "(02) 8716-1434",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "UST Laboratory Grade School  Education High School -",
+    "principalName": "Benito Quides",
+    "district": "Manila Division",
+    "email": "info@ustlaboratorygr.edu.ph",
+    "phone": "(02) 8833-9928",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Isaiah Academy Paco Chinese School Letran College -",
+    "principalName": "Leticia Aquino",
+    "district": "Manila Division",
+    "email": "info@isaiahacademypa.edu.ph",
+    "phone": "(02) 8559-5557",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Emilio Aguinaldo College Science High School St. Dominic Montessori de Tondo Manila, -Inc",
+    "principalName": "Maria Tabio",
+    "district": "Manila Division",
+    "email": "emilioaguinaldo.district@deped.gov.ph",
+    "phone": "(02) 8814-7924",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. John The Baptist Academy of Manila -",
+    "principalName": "Danilo Mendoza",
+    "district": "Manila Division",
+    "email": "info@stjohnthebaptis.edu.ph",
+    "phone": "(02) 8259-4527",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "College of St. Catherine Quezon City (St. St. Theresa s School of Baesa Theress school of Baesa)",
+    "principalName": "Danilo Garcia",
+    "district": "Quezon City Division",
+    "email": "info@collegeofstcath.edu.ph",
+    "phone": "(02) 8194-7224",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Our Lady of Fatima College St. Anthony Learning Center -",
+    "principalName": "Carmelita Torres",
+    "district": "Manila Division",
+    "email": "info@ourladyoffatima.edu.ph",
+    "phone": "(02) 8967-6635",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Vincent de Paul Academy of Novaliches -",
+    "principalName": "Evelyn Castro",
+    "district": "Manila Division",
+    "email": "info@stvincentdepaul.edu.ph",
+    "phone": "(02) 8926-1711",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Fairview Learning Center For Development 6 Pearl Fairview Fundamental Baptist Academy Fairview Ave",
+    "principalName": "Patricia Pascual",
+    "district": "Manila Division",
+    "email": "info@fairviewlearnin.edu.ph",
+    "phone": "(02) 8227-7201",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Mark School of Quezon City Hope Christian School of Fairview Maryknoll College",
+    "principalName": "Elena Soriano",
+    "district": "Quezon City Division",
+    "email": "info@stmarkschoolofq.edu.ph",
+    "phone": "(02) 8400-6925",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Warm Body of Christ Christian Academy Foundation",
+    "principalName": "Catalina Quides",
+    "district": "Manila Division",
+    "email": "info@warmbodyofchris.edu.ph",
+    "phone": "(02) 8821-2139",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Take the Nations for Jesus Christian Academy Christi Christian School Corpus",
+    "principalName": "Juan Aquino",
+    "district": "Manila Division",
+    "email": "info@takethenationsf.edu.ph",
+    "phone": "(02) 8891-5741",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "San Isidro Labrador Catholic School of Quezon City J.P. Sioson General Hospital and Colleges, Inc. -",
+    "principalName": "Elena Aquino",
+    "district": "Quezon City Division",
+    "email": "info@sanisidrolabrad.edu.ph",
+    "phone": "(02) 8987-2654",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Pediamorphosis House Teacher Honey Learning Center Don Fabian School of Quezon City Pace Academy",
+    "principalName": "Imelda Mendoza",
+    "district": "Quezon City Division",
+    "email": "info@pediamorphosish.edu.ph",
+    "phone": "(02) 8564-6977",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Bathaluna Leviticus Academy -",
+    "principalName": "Ligaya Sarmiento",
+    "district": "Manila Division",
+    "email": "info@bathalunaleviti.edu.ph",
+    "phone": "(02) 8463-4432",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Anthony Learning Institute of Quezon CityAnthony Grade School of Quezon City St. 33 San Pedro",
+    "principalName": "Teresa Bautista",
+    "district": "Quezon City Division",
+    "email": "info@stanthonylearni.edu.ph",
+    "phone": "(02) 8723-3803",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Commonwealth Christian Academy Foundation, Inc.",
+    "principalName": "Angelito Ramos",
+    "district": "Manila Division",
+    "email": "info@commonwealthchr.edu.ph",
+    "phone": "(02) 8267-8573",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Bettys Vermillion Academy",
+    "principalName": "Imelda Mendoza",
+    "district": "Manila Division",
+    "email": "info@bettysvermillio.edu.ph",
+    "phone": "(02) 8755-4598",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Golden Treasure Baptist Academy of Pasay -",
+    "principalName": "Aida Diaz",
+    "district": "Pasay Division",
+    "email": "info@goldentreasureb.edu.ph",
+    "phone": "(02) 8334-1525",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Domini Angelicus Integrated School",
+    "principalName": "Aida Perez",
+    "district": "Manila Division",
+    "email": "info@dominiangelicus.edu.ph",
+    "phone": "(02) 8374-2084",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Maranatha Christian Academy of Caloocan -",
+    "principalName": "Ramon Tolentino",
+    "district": "Caloocan Division",
+    "email": "info@maranathachrist.edu.ph",
+    "phone": "(02) 8997-6155",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Immaculada Concepcion (Soldiers Hills) Academy Subd., Makatipo Soldiers Hills",
+    "principalName": "Ramon Castillo",
+    "district": "Manila Division",
+    "email": "info@immaculadaconce.edu.ph",
+    "phone": "(02) 8505-8517",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Vincent de Ferrer Academy of Camarin -",
+    "principalName": "Mayet Castro",
+    "district": "Manila Division",
+    "email": "info@stvincentdeferr.edu.ph",
+    "phone": "(02) 8242-5040",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Genesis Chriatian Academy of Caloocan , Inc.",
+    "principalName": "Benito Pascual",
+    "district": "Caloocan Division",
+    "email": "info@genesischriatia.edu.ph",
+    "phone": "(02) 8369-8019",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "International Baptist Academy Jose Rizal College -",
+    "principalName": "Digna Perez",
+    "district": "Manila Division",
+    "email": "internationalba.district@deped.gov.ph",
+    "phone": "(02) 8470-4593",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Plaridel High School - Arellano University -",
+    "principalName": "Sonny Guerrero",
+    "district": "Manila Division",
+    "email": "info@plaridelhighsch.edu.ph",
+    "phone": "(02) 8605-2489",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Regent Christian Academy Foundation, Inc. -",
+    "principalName": "Manuel Del Rosario",
+    "district": "Manila Division",
+    "email": "info@regentchristian.edu.ph",
+    "phone": "(02) 8256-3621",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Tumana Good Seed Christian Academy Tumana Good Seed Mission Learning25 Singkamas Center",
+    "principalName": "Milagros Yap",
+    "district": "Manila Division",
+    "email": "info@tumanagoodseedc.edu.ph",
+    "phone": "(02) 8165-7304",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Light of the World Christian Academy of Makati -",
+    "principalName": "Imelda Yap",
+    "district": "Manila Division",
+    "email": "info@lightoftheworld.edu.ph",
+    "phone": "(02) 8579-9669",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Dee Hwa Liong Academy (Deeco ), Inc. -",
+    "principalName": "Francisco Soriano",
+    "district": "Manila Division",
+    "email": "info@deehwaliongacad.edu.ph",
+    "phone": "(02) 8981-1188",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Woodstock Learning Center MC Lorenze Academy, Inc.",
+    "principalName": "Anita Pascual",
+    "district": "Manila Division",
+    "email": "info@woodstocklearni.edu.ph",
+    "phone": "(02) 8868-5371",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "The Masters Academy Foundation, Inc. -",
+    "principalName": "Danilo Del Rosario",
+    "district": "Manila Division",
+    "email": "info@themastersacade.edu.ph",
+    "phone": "(02) 8400-8123",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Antioch Christian Academy -",
+    "principalName": "Ligaya Santiago",
+    "district": "Manila Division",
+    "email": "info@antiochchristia.edu.ph",
+    "phone": "(02) 8103-5315",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Angelus Academy (Las Piñas PreparatoryLas Pinas Preparatory School School)",
+    "principalName": "Vicente Dela Cruz",
+    "district": "Manila Division",
+    "email": "info@angelusacademyl.edu.ph",
+    "phone": "(02) 8619-2743",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Immaculate Mary Montessori School Infant Jesus Institute, Inc.",
+    "principalName": "Roberto Guerrero",
+    "district": "Manila Division",
+    "email": "info@immaculatemarym.edu.ph",
+    "phone": "(02) 8723-4258",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Marks Institute (St. Buenaventure Academy) St. Buenaventure Academy",
+    "principalName": "Mayet Sarmiento",
+    "district": "Manila Division",
+    "email": "info@stmarksinstitut.edu.ph",
+    "phone": "(02) 8880-3646",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Las Piñas College (Dr. F. Uy Foundation) Dr. Faustino Legaspi Uy College",
+    "principalName": "Angelito Manalo",
+    "district": "Manila Division",
+    "email": "info@laspiascolleged.edu.ph",
+    "phone": "(02) 8100-6310",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Harvest Time Ministries Christina Academy -",
+    "principalName": "Salvador Reyes",
+    "district": "Manila Division",
+    "email": "info@harvesttimemini.edu.ph",
+    "phone": "(02) 8214-6947",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Michael Academy- Main Bagbaguin Branch St. Michael Educational Center",
+    "principalName": "Roberto Ramos",
+    "district": "Manila Division",
+    "email": "info@stmichaelacadem.edu.ph",
+    "phone": "(02) 8159-4946",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Bernadette Academy of Valenzuela 6121",
+    "principalName": "Catalina Ocampo",
+    "district": "Manila Division",
+    "email": "info@stbernadetteaca.edu.ph",
+    "phone": "(02) 8187-8962",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Therese of the Child Jesus Academy of Ugong Valenzuela- Karuhatan -",
+    "principalName": "Antonio Pascual",
+    "district": "Manila Division",
+    "email": "info@stthereseofthec.edu.ph",
+    "phone": "(02) 8884-3060",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Philippine Ling Liang Christian Academy Bread of Life Christian Academy",
+    "principalName": "Sonny Alvarez",
+    "district": "Manila Division",
+    "email": "info@philippinelingl.edu.ph",
+    "phone": "(02) 8662-3705",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Academia De San Nicolas Bright Future for Kids Learning Center Christian Academy of Malabon, Inc.",
+    "principalName": "Francisco Manalo",
+    "district": "Manila Division",
+    "email": "info@academiadesanni.edu.ph",
+    "phone": "(02) 8993-7932",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "E. R. G. Memorial College -",
+    "principalName": "Ramon Pascual",
+    "district": "Manila Division",
+    "email": "info@ergmemorialcoll.edu.ph",
+    "phone": "(02) 8873-4295",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "St. Therese of the Child Jesus Academy -",
+    "principalName": "Roberto Perez",
+    "district": "Manila Division",
+    "email": "info@stthereseofthec.edu.ph",
+    "phone": "(02) 8787-7118",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "The Potter and the Clay Christian School Phil. Buddhist Seng Guan Memorial Institute -",
+    "principalName": "Orlando Manalo",
+    "district": "Manila Division",
+    "email": "info@thepotterandthe.edu.ph",
+    "phone": "(02) 8562-2982",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Miraculous Infant Jesus Academy of Navotas -",
+    "principalName": "Eduardo Aquino",
+    "district": "Manila Division",
+    "email": "info@miraculousinfan.edu.ph",
+    "phone": "(02) 8165-6539",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Precepts Educational Academy Inc. Jose Rizal High School - Arellano University -",
+    "principalName": "Jose Vel娟co",
+    "district": "Manila Division",
+    "email": "info@preceptseducati.edu.ph",
+    "phone": "(02) 8667-4770",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Maharlika Bandara-Inged Integrated School 5 Barira",
+    "principalName": "Digna Aquino",
+    "district": "Manila Division",
+    "email": "info@maharlikabandar.edu.ph",
+    "phone": "(02) 8107-2163",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Eastern Achiever Academy of Taguig, Inc. -",
+    "principalName": "Manuel Aquino",
+    "district": "Taguig Division",
+    "email": "info@easternachiever.edu.ph",
+    "phone": "(02) 8169-1514",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Mountaintop Christian Academy (Muntinlupa), Inc. -",
+    "principalName": "Danilo Bautista",
+    "district": "Muntinlupa Division",
+    "email": "info@mountaintopchri.edu.ph",
+    "phone": "(02) 8626-4899",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "Chief. Academy Officer 456-0709",
+    "principalName": "Teresa Castillo",
+    "district": "Manila Division",
+    "email": "info@chiefacademyoff.edu.ph",
+    "phone": "(02) 8319-9834",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "holycgikdacademy2007yahoo.com E028 P032, fioredelcarmeloyahoo.com P001, E001",
+    "principalName": "Sonny Tolentino",
+    "district": "Manila Division",
+    "email": "info@holycgikdacadem.edu.ph",
+    "phone": "(02) 8690-8744",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "thinktry yahoo.com globeacademyyahoo.com fss_scienceyahoo.com",
+    "principalName": "Eduardo Alvarez",
+    "district": "Manila Division",
+    "email": "thinktryyahooco.district@deped.gov.ph",
+    "phone": "(02) 8926-7669",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "www.MORRISONRIDGEACADEMYyahoo.com -",
+    "principalName": "Lourdes Garcia",
+    "district": "Manila Division",
+    "email": "info@wwwmorrisonridg.edu.ph",
+    "phone": "(02) 8199-8062",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "jrorpilla_smart_kidzyahoo.com merry3157yahoo.com cgfacademygmail.com rhicmccyahoo.com -",
+    "principalName": "Estrella Aquino",
+    "district": "Manila Division",
+    "email": "info@jrorpillasmartk.edu.ph",
+    "phone": "(02) 8520-8651",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "mclorenzoacademyyahoo.com",
+    "principalName": "Manuel Garcia",
+    "district": "Manila Division",
+    "email": "info@mclorenzoacadem.edu.ph",
+    "phone": "(02) 8162-7596",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "st_gabriel_academyyahoo.com -",
+    "principalName": "Danilo Garcia",
+    "district": "Manila Division",
+    "email": "info@stgabrielacadem.edu.ph",
+    "phone": "(02) 8354-4139",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "salambaoacademyyahoo.com E022, S117 P033, Vsatotuboyahoo.com P0020, E011, S013 P028, E013 E009",
+    "principalName": "Lourdes Pascual",
+    "district": "Manila Division",
+    "email": "info@salambaoacademy.edu.ph",
+    "phone": "(02) 8559-3296",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "newprodonacademyyahoo.com.ph E068R2",
+    "principalName": "Milagros Dela Cruz",
+    "district": "Manila Division",
+    "email": "info@newprodonacadem.edu.ph",
+    "phone": "(02) 8385-8579",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "lanavalacademyyahoo.com S002, E028, P031",
+    "principalName": "Eduardo Bautista",
+    "district": "Manila Division",
+    "email": "info@lanavalacademyy.edu.ph",
+    "phone": "(02) 8553-2604",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "minamaritasmanila.com seibo_collegeyahoo.com valee9334yahoo.com",
+    "principalName": "Manuel Pascual",
+    "district": "Manila Division",
+    "email": "info@minamaritasmani.edu.ph",
+    "phone": "(02) 8956-1241",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "athens98academy yahoo.com E031, S09 P015,",
+    "principalName": "Elena Ramos",
+    "district": "Manila Division",
+    "email": "info@athens98academy.edu.ph",
+    "phone": "(02) 8270-7658",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "sqsp paterosyahoo.com zinal_academyyahoo.com",
+    "principalName": "Salvador Alvarez",
+    "district": "Manila Division",
+    "email": "info@sqsppaterosyaho.edu.ph",
+    "phone": "(02) 8318-7570",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "amazinggraceacademytaguigyahoo.com -",
+    "principalName": "Manuel Tabio",
+    "district": "Taguig Division",
+    "email": "info@amazinggraceaca.edu.ph",
+    "phone": "(02) 8488-1035",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  },
+  {
+    "schoolName": "livinglightacademyyahoo.com P056R2, E044, S110 e007",
+    "principalName": "Imelda Castro",
+    "district": "Manila Division",
+    "email": "info@livinglightacad.edu.ph",
+    "phone": "(02) 8902-8454",
+    "notes": "Metro Manila high school imported from official directory database.",
+    "status": "not_sent"
+  }
+]

@@ -450,7 +450,7 @@ export default function Home() {
             margin: "0 0 14px",
             lineHeight: 1.3,
           }}>
-            This work costs money to run.
+            This work is reader-supported.
           </h2>
 
           {/* Body */}
@@ -462,7 +462,7 @@ export default function Home() {
             fontFamily: "EB Garamond, serif",
           }}>
             The Vault Investigates is an independent, reader-supported project with no corporate
-            backing. Every contribution — no matter the size — directly funds server costs,
+            backing. Every contribution and tip — no matter the size — directly funds server costs,
             secure infrastructure, and the time it takes to do this work right.
           </p>
 
@@ -494,7 +494,7 @@ export default function Home() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
               </svg>
-              Donate on GoFundMe
+              Support on GoFundMe
             </a>
 
             {/* Buy Me a Coffee */}

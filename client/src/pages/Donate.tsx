@@ -1,6 +1,6 @@
 /**
- * Donate.tsx — Support the Investigation
- * Professional donation page for The Vault Investigates / TruthDrop.io
+ * Donate.tsx — Support the Investigation (Rephrased for Compliance)
+ * Professional support page for The Vault Investigates / TruthDrop.io
  */
 
 import { useState } from "react";
@@ -9,7 +9,6 @@ import { Link } from "wouter";
 const KOFI_URL = "https://ko-fi.com/thevaultinvestigates";
 const BMC_URL = "https://buymeacoffee.com/thevaultinvestigates";
 const PAYPAL_ANNUAL_URL = "https://www.paypal.com/ncp/payment/JH4X7243NJMRE";
-const GOFUNDME_URL = "https://gofund.me/5379fe02";
 
 interface Tier {
   id: string;
@@ -62,7 +61,6 @@ const SECONDARY = [
   { label: "Ko-fi", url: KOFI_URL },
   { label: "Buy Me a Coffee", url: BMC_URL },
   { label: "PayPal", url: PAYPAL_ANNUAL_URL },
-  { label: "GoFundMe", url: GOFUNDME_URL },
 ];
 
 const gold = "var(--vault-gold, #b49632)";
@@ -95,15 +93,15 @@ export default function Donate() {
           Independent Investigative Journalism
         </p>
         <h1 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(1.8rem, 4vw, 2.7rem)", fontWeight: 700, color: cream, lineHeight: 1.2, marginBottom: "1.5rem" }}>
-          Fund the Work That<br />Power Doesn't Want Done
+          Support the Work That<br />Power Doesn't Want Done
         </h1>
         <p style={{ fontSize: "1rem", lineHeight: 1.8, color: "rgba(240,230,200,0.72)", maxWidth: "560px", margin: "0 auto 1rem" }}>
-          The Vault Investigates is an independent, reader-funded project documenting how poverty is
+          The Vault Investigates is an independent, reader-supported project documenting how poverty is
           exploited — from fraudulent benefit schemes to institutional neglect. No advertisers.
           No corporate backers. No agenda except the truth.
         </p>
         <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "rgba(240,230,200,0.48)", maxWidth: "520px", margin: "0 auto 3rem" }}>
-          Your contribution funds secure infrastructure for whistleblowers, FOIA requests,
+          Your tips and support fund secure infrastructure for whistleblowers, FOIA requests,
           database access, and the time it takes to verify every claim before publication.
         </p>
         <div style={{ width: "50px", height: "1px", background: gold, margin: "0 auto 3rem", opacity: 0.45 }} />
@@ -159,7 +157,7 @@ export default function Donate() {
         })}
       </div>
 
-      {/* About the Investigator — honest, not dramatic */}
+      {/* About the Investigator */}
       <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 2rem 4rem" }}>
         <div style={{ borderLeft: "2px solid rgba(180,150,50,0.35)", paddingLeft: "1.5rem" }}>
           <p style={{ fontFamily: "'Cinzel', serif", fontSize: "0.68rem", letterSpacing: "0.2em", color: gold, textTransform: "uppercase", marginBottom: "1rem" }}>
@@ -171,7 +169,7 @@ export default function Donate() {
             secure infrastructure comes out of a Social Security check and VA Disability benefit.
           </p>
           <p style={{ fontSize: "0.92rem", lineHeight: 1.85, color: "rgba(240,230,200,0.68)", marginBottom: "1rem" }}>
-            I am not asking for charity. I am asking you to fund journalism that the people
+            I am not asking for charity. I am asking you to support journalism that the people
             being investigated would prefer did not exist. The cases in this database represent
             real harm to real people — and they deserve a record that does not disappear.
           </p>
@@ -182,45 +180,10 @@ export default function Donate() {
         </div>
       </div>
 
-      {/* GoFundMe callout */}
-      <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 2rem 3rem" }}>
-        <a
-          href={GOFUNDME_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "block",
-            background: "rgba(180,150,50,0.06)",
-            border: "1px solid rgba(180,150,50,0.25)",
-            borderRadius: "6px",
-            padding: "1.25rem 1.5rem",
-            textDecoration: "none",
-            color: "inherit",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(180,150,50,0.11)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(180,150,50,0.06)"; }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-            <div>
-              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "0.78rem", letterSpacing: "0.08em", color: gold, marginBottom: "0.3rem" }}>
-                GoFundMe Campaign
-              </div>
-              <p style={{ fontSize: "0.82rem", color: "rgba(240,230,200,0.6)", margin: 0, lineHeight: 1.5 }}>
-                Support the full campaign — any amount helps keep the investigation running.
-              </p>
-            </div>
-            <span style={{ fontFamily: "'Cinzel', serif", fontSize: "0.72rem", color: gold, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
-              View Campaign →
-            </span>
-          </div>
-        </a>
-      </div>
-
       {/* How Funds Are Used */}
       <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 2rem 3rem" }}>
         <p style={{ fontFamily: "'Cinzel', serif", fontSize: "0.68rem", letterSpacing: "0.22em", color: gold, textTransform: "uppercase", marginBottom: "1.25rem", textAlign: "center" }}>
-          Where Your Money Goes
+          Where Your Support Goes
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
           {[
@@ -248,7 +211,7 @@ export default function Donate() {
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           <a
-            href={`https://twitter.com/intent/tweet?text=Support%20independent%20investigative%20journalism%20exposing%20poverty%20fraud.%20Reader-funded%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
+            href={`https://twitter.com/intent/tweet?text=Support%20independent%20investigative%20journalism%20exposing%20poverty%20fraud.%20Reader-supported%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(180,150,50,0.2)", borderRadius: "4px", padding: "0.55rem 1rem", fontSize: "0.75rem", color: "rgba(240,230,200,0.7)", textDecoration: "none", fontFamily: "'Cinzel', serif", letterSpacing: "0.06em", transition: "all 0.2s" }}
@@ -308,9 +271,9 @@ export default function Donate() {
       {/* Trust signals */}
       <div style={{ maxWidth: "760px", margin: "0 auto", padding: "2.5rem 2rem", borderTop: "1px solid rgba(180,150,50,0.1)", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: "1.5rem", textAlign: "center" }}>
         {[
-          { icon: "🔒", label: "Secure Payments", detail: "All transactions processed by trusted payment platforms" },
+          { icon: "🔒", label: "Secure Payments", detail: "All transactions processed securely by trusted payment platforms" },
           { icon: "📋", label: "Transparent Use", detail: "Funds go directly to infrastructure and investigation costs" },
-          { icon: "🛡️", label: "No Corporate Backing", detail: "100% reader-funded — no advertisers, no conflicts of interest" },
+          { icon: "🛡️", label: "No Corporate Backing", detail: "100% reader-supported — no advertisers, no conflicts of interest" },
         ].map((item) => (
           <div key={item.label}>
             <div style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>{item.icon}</div>

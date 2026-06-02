@@ -1089,6 +1089,7 @@ export default function AdminDashboard() {
   // Bulk send state
   const [selectedSchoolIds, setSelectedSchoolIds] = useState<Set<number>>(new Set());
   const [skipAlreadySent, setSkipAlreadySent] = useState(true);
+  const [bulkLang, setBulkLang] = useState<"en" | "tl">("en");
   const [bulkSendResult, setBulkSendResult] = useState<{
     results: Array<{ id: number; name: string; school: string; email: string; success: boolean; skipped: boolean; error?: string }>;
     sent: number; skipped: number; failed: number;
@@ -2145,11 +2146,21 @@ export default function AdminDashboard() {
                     />
                     Skip already-sent
                   </label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <span style={{ color: "var(--vault-muted)", fontSize: "0.75rem" }}>Language:</span>
+                    <select
+                      value={bulkLang}
+                      onChange={e => setBulkLang(e.target.value as "en" | "tl")}
+                      style={{ background: "var(--vault-black)", border: "1px solid var(--vault-border)", color: "var(--vault-text)", borderRadius: "4px", padding: "0.2rem 0.4rem", fontSize: "0.75rem", cursor: "pointer" }}>
+                      <option value="en">English (EN)</option>
+                      <option value="tl">Tagalog (TL)</option>
+                    </select>
+                  </div>
                   <button
                     disabled={sendBulkFellowshipMutation.isPending}
                     onClick={() => {
-                      if (!confirm(`Send fellowship email to ${selectedSchoolIds.size} principal${selectedSchoolIds.size !== 1 ? "s" : ""}?`)) return;
-                      sendBulkFellowshipMutation.mutate({ ids: Array.from(selectedSchoolIds), skipAlreadySent });
+                      if (!confirm(`Send fellowship email to ${selectedSchoolIds.size} principal${selectedSchoolIds.size !== 1 ? "s" : ""} in ${bulkLang === "en" ? "English" : "Tagalog"}?`)) return;
+                      sendBulkFellowshipMutation.mutate({ ids: Array.from(selectedSchoolIds), skipAlreadySent, lang: bulkLang });
                     }}
                     style={{ padding: "0.35rem 1rem", background: "var(--vault-gold)", border: "none", color: "#050505", borderRadius: "4px", fontSize: "0.75rem", fontFamily: "Cinzel, serif", fontWeight: 700, cursor: sendBulkFellowshipMutation.isPending ? "not-allowed" : "pointer", opacity: sendBulkFellowshipMutation.isPending ? 0.6 : 1 }}>
                     {sendBulkFellowshipMutation.isPending ? "Sending…" : `✉ Send to ${selectedSchoolIds.size}`}
@@ -2277,12 +2288,28 @@ export default function AdminDashboard() {
                         </td>
                         <td style={{ padding: "0.75rem" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-                            <button
-                              disabled={sc.status === "sent" || sendFellowshipEmailMutation.isPending}
-                              onClick={() => sendFellowshipEmailMutation.mutate({ id: sc.id })}
-                              style={{ padding: "0.3rem 0.7rem", background: sc.status === "sent" ? "rgba(34,197,94,0.1)" : "rgba(212,175,55,0.1)", border: `1px solid ${sc.status === "sent" ? "#22c55e" : "var(--vault-gold)"}`, color: sc.status === "sent" ? "#22c55e" : "var(--vault-gold)", borderRadius: "4px", fontSize: "0.72rem", cursor: sc.status === "sent" ? "default" : "pointer", fontFamily: "Cinzel, serif", whiteSpace: "nowrap" }}>
-                              {sc.status === "sent" ? "✓ Initial Sent" : "Send Email"}
-                            </button>
+                            {sc.status !== "sent" ? (
+                              <div style={{ display: "flex", gap: "0.25rem" }}>
+                                <button
+                                  disabled={sendFellowshipEmailMutation.isPending}
+                                  onClick={() => sendFellowshipEmailMutation.mutate({ id: sc.id, lang: "en" })}
+                                  style={{ flex: 1, padding: "0.3rem 0.5rem", background: "rgba(212,175,55,0.1)", border: "1px solid var(--vault-gold)", color: "var(--vault-gold)", borderRadius: "4px", fontSize: "0.72rem", cursor: "pointer", fontFamily: "Cinzel, serif", whiteSpace: "nowrap" }}>
+                                  Send EN
+                                </button>
+                                <button
+                                  disabled={sendFellowshipEmailMutation.isPending}
+                                  onClick={() => sendFellowshipEmailMutation.mutate({ id: sc.id, lang: "tl" })}
+                                  style={{ flex: 1, padding: "0.3rem 0.5rem", background: "rgba(255,87,34,0.1)", border: "1px solid #ff5722", color: "#ff5722", borderRadius: "4px", fontSize: "0.72rem", cursor: "pointer", fontFamily: "Cinzel, serif", whiteSpace: "nowrap" }}>
+                                  Send TL
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                disabled
+                                style={{ padding: "0.3rem 0.7rem", background: "rgba(34,197,94,0.1)", border: "1px solid #22c55e", color: "#22c55e", borderRadius: "4px", fontSize: "0.72rem", cursor: "default", fontFamily: "Cinzel, serif", whiteSpace: "nowrap" }}>
+                                ✓ Initial Sent
+                              </button>
+                            )}
                             {sc.status === "sent" && !sc.followUpSent && sc.followUpDate && (() => {
                               const due = new Date(sc.followUpDate);
                               const diffDays = Math.ceil((due.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));

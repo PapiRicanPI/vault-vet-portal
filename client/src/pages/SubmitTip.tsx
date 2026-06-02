@@ -366,7 +366,7 @@ export default function SubmitTip() {
             margin: "0 0 24px",
             fontFamily: "EB Garamond, serif",
           }}>
-            The Vault Investigates runs entirely on reader contributions.
+            The Vault Investigates is reader-supported.
             If this work is worth doing, consider helping fund it.
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
@@ -392,7 +392,7 @@ export default function SubmitTip() {
               onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.transform = "scale(1.03)"; }}
               onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
             >
-              ❤ Donate on GoFundMe
+              ❤ Support on GoFundMe
             </a>
             <a
               href="https://buymeacoffee.com/thevaultinvestigates"

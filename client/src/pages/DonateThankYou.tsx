@@ -44,7 +44,7 @@ export default function DonateThankYou() {
 
         {/* Message */}
         <p style={{ fontSize: "1rem", lineHeight: 1.8, color: "rgba(240,230,200,0.75)", marginBottom: "1.5rem" }}>
-          Your contribution goes directly toward keeping this investigation running — secure infrastructure, public records requests, and the tools that protect sources.
+          Your support goes directly toward keeping this investigation running — secure infrastructure, public records requests, and the tools that protect sources.
         </p>
         <p style={{ fontSize: "0.9rem", lineHeight: 1.8, color: "rgba(240,230,200,0.55)", marginBottom: "2.5rem" }}>
           This work is funded entirely by readers like you. No corporate backing. No advertisers. Just people who believe accountability journalism matters.
@@ -74,7 +74,7 @@ export default function DonateThankYou() {
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "3rem" }}>
           <a
-            href={`https://twitter.com/intent/tweet?text=I%20just%20supported%20The%20Vault%20Investigates%20%E2%80%94%20independent%20journalism%20exposing%20poverty%20fraud.%20Reader-funded%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
+            href={`https://twitter.com/intent/tweet?text=I%20just%20supported%20The%20Vault%20Investigates%20%E2%80%94%20independent%20journalism%20exposing%20poverty%20fraud.%20Reader-supported%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(180,150,50,0.2)", borderRadius: "4px", padding: "0.55rem 1rem", fontSize: "0.75rem", color: "rgba(240,230,200,0.7)", textDecoration: "none", fontFamily: "'Cinzel', serif", letterSpacing: "0.06em" }}

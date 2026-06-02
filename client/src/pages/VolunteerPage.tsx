@@ -374,11 +374,11 @@ export default function VolunteerPage() {
 
       {/* Donation Strip */}
       <div style={{ background: "linear-gradient(90deg, #1a1200, #0d0d00, #1a1200)", borderBottom: "1px solid rgba(201,168,76,0.25)", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-        <span style={{ color: "#b8a060", fontSize: 13, fontStyle: "italic" }}>This program is free. The investigation is not. Help keep it alive.</span>
+        <span style={{ color: "#b8a060", fontSize: 13, fontStyle: "italic" }}>This program is free. The investigation is reader-supported. Help keep it alive.</span>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
           <a href="https://gofund.me/3a4e564d5" target="_blank" rel="noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#00b964", color: "white", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
-            💚 GoFundMe
+            💚 Support on GoFundMe
           </a>
           <a href="https://buymeacoffee.com/thevaultinvestigates" target="_blank" rel="noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#FFDD00", color: "#000", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
@@ -546,7 +546,7 @@ function ProgramDocuments() {
     onError: (err) => { setError(err.message); setLoading(null); },
   });
 
-  async function handleDownload(docType: "consent_form" | "confidentiality_agreement" | "sample_research_task" | "program_summary", label: string) {
+  async function handleDownload(docType: "consent_form" | "confidentiality_agreement" | "release_of_liability" | "sample_research_task" | "program_summary", label: string) {
     setLoading(docType);
     setError(null);
     try {
@@ -563,7 +563,8 @@ function ProgramDocuments() {
   const docs = [
     { type: "program_summary" as const, label: "Program Summary (One Page)", icon: "📋", desc: "One-page overview of the fellowship program. Share with your principal, parents, or scholarship committee." },
     { type: "consent_form" as const, label: "Parental Consent Form", icon: "📝", desc: "Required for students under 18. Download, print, and have your parent/guardian sign before submitting." },
-    { type: "confidentiality_agreement" as const, label: "Research Confidentiality Agreement", icon: "🔒", desc: "Review the confidentiality obligations before applying. You will agree to these terms during the application." },
+    { type: "release_of_liability" as const, label: "Release of Liability & Assumption of Risk", icon: "🛡️", desc: "Mandatory legal waiver for all student volunteers. Download, print, and have your parent/guardian co-sign." },
+    { type: "confidentiality_agreement" as const, label: "Research Confidentiality Agreement & Strict NDA", icon: "🔒", desc: "Strict NDA regarding active investigations. Forbids discussing, copying, or taking any research leads or files outside of the secure Vault EcoSystem." },
     { type: "sample_research_task" as const, label: "Sample Research Task", icon: "🔍", desc: "See exactly what kind of work you will be doing. Sanitized example — safe to share with parents and teachers." },
   ];
 

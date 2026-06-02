@@ -980,7 +980,10 @@ Respond with valid JSON only:
         return { success: true };
       }),
     sendFellowshipEmail: adminProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({
+        id: z.number(),
+        lang: z.enum(["en", "tl"]).default("en"),
+      }))
       .mutation(async ({ input }) => {
         const { getDb } = await import("./db");
         const { schoolContacts } = await import("../drizzle/schema");
@@ -993,7 +996,8 @@ Respond with valid JSON only:
           contact.email,
           contact.principalName,
           contact.schoolName,
-          contact.district
+          contact.district,
+          input.lang
         );
         if (result.success) {
           const followUpDate = new Date();
@@ -1010,6 +1014,7 @@ Respond with valid JSON only:
       .input(z.object({
         ids: z.array(z.number()).min(1).max(100),
         skipAlreadySent: z.boolean().default(true),
+        lang: z.enum(["en", "tl"]).default("en"),
       }))
       .mutation(async ({ input }) => {
         const { getDb } = await import("./db");
@@ -1050,7 +1055,8 @@ Respond with valid JSON only:
               contact.email,
               contact.principalName,
               contact.schoolName,
-              contact.district
+              contact.district,
+              input.lang
             );
             if (result.success) {
               const bulkFollowUpDate = new Date();
