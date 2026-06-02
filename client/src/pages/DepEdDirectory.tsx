@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { Database, Download, RefreshCw, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function DepEdDirectory() {
@@ -17,11 +17,26 @@ export default function DepEdDirectory() {
     onError: (e) => toast.error(e.message),
   });
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || "";
+  });
   const [region, setRegion] = useState("");
   const [province, setProvince] = useState("");
   const [page, setPage] = useState(1);
-  const [searched, setSearched] = useState(false);
+  const [searched, setSearched] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return !!params.get("q");
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    if (q) {
+      setQuery(q);
+      setSearched(true);
+    }
+  }, []);
 
   const { data: provinces = [] } = trpc.deped.provinces.useQuery({ region: region || undefined }, { enabled: !!region });
   const { data: results, isLoading: searching } = trpc.deped.search.useQuery(
