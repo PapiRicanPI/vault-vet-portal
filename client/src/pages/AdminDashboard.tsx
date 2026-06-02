@@ -1491,6 +1491,56 @@ export default function AdminDashboard() {
             🔍 Creator Scan
           </a>
           <a
+            href="/admin/media-scan"
+            style={{
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.8rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontFamily: "Cinzel, serif",
+              background: "none",
+              border: "none",
+              borderBottom: "2px solid transparent",
+              color: "var(--vault-muted)",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--vault-gold)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--vault-muted)")}
+          >
+            📡 Media Scan
+          </a>
+          <a
+            href="https://truthdrop.io/ghost"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: "0.75rem 1.5rem",
+              fontSize: "0.8rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontFamily: "Cinzel, serif",
+              background: "none",
+              border: "none",
+              borderBottom: "2px solid transparent",
+              color: "var(--vault-muted)",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--vault-gold)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--vault-muted)")}
+          >
+            📰 Newsletter
+          </a>
+          <a
             href="/admin/resources"
             style={{
               padding: "0.75rem 1.5rem",
@@ -1858,8 +1908,8 @@ export default function AdminDashboard() {
                 <p style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>Share the program page to start receiving applications.</p>
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <div style={{ overflowX: "auto", width: "100%", border: "1px solid var(--vault-border)", borderRadius: "6px" }}>
+                <table style={{ width: "100%", minWidth: "1000px", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
                       {["Name", "School / City", "Role", "Grade", "AI Score", "Status", "Applied", "Actions"].map(h => (
@@ -1925,8 +1975,8 @@ export default function AdminDashboard() {
                 <p style={{ color: "var(--vault-muted)", fontSize: "0.8rem" }}>Send the press release directly via Resend. Each contact receives a personalized HTML email from <strong style={{ color: "var(--vault-gold)" }}>editor@vet.thevaultinvestigates.cloud</strong>. Status updates automatically after sending.</p>
               </div>
             </div>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+            <div style={{ overflowX: "auto", width: "100%", border: "1px solid var(--vault-border)", borderRadius: "6px" }}>
+              <table style={{ width: "100%", minWidth: "1100px", borderCollapse: "collapse", fontSize: "0.82rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
                     {["#", "Name / Organization", "Role", "Email", "Priority", "Last Contacted", "Status", "Action"].map(h => (
@@ -2173,8 +2223,8 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+              <div style={{ overflowX: "auto", width: "100%", border: "1px solid var(--vault-border)", borderRadius: "6px" }}>
+                <table style={{ width: "100%", minWidth: "1200px", borderCollapse: "collapse", fontSize: "0.82rem" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
                       <th style={{ padding: "0.6rem 0.5rem", width: "36px" }}>

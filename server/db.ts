@@ -17,6 +17,8 @@ import {
   vloggerInquiries,
   volunteerApplications,
   creatorScanLeads,
+  mediaLeads,
+  depedSchools,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -468,4 +470,76 @@ export async function deleteScanLead(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(creatorScanLeads).where(eq(creatorScanLeads.id, id));
+}
+
+// ─── MEDIA SCAN LEADS ─────────────────────────────────────────────────────────
+export async function getMediaLeads(status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (status) {
+    return db.select().from(mediaLeads).where(eq(mediaLeads.status, status as any)).orderBy(desc(mediaLeads.createdAt));
+  }
+  return db.select().from(mediaLeads).orderBy(desc(mediaLeads.createdAt));
+}
+
+export async function createMediaLead(data: typeof mediaLeads.$inferInsert) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(mediaLeads).values(data);
+}
+
+export async function updateMediaLead(id: number, data: Partial<typeof mediaLeads.$inferInsert>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(mediaLeads).set(data).where(eq(mediaLeads.id, id));
+}
+
+// ─── DEPED DIRECTORY ──────────────────────────────────────────────────────────
+export async function getDepedSchoolCount() {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`count(*)` }).from(depedSchools);
+  return Number(result[0]?.count ?? 0);
+}
+
+export async function searchDepedSchools(query: string, region?: string, province?: string, page = 1, pageSize = 50) {
+  const db = await getDb();
+  if (!db) return { rows: [], total: 0 };
+  const conditions = [];
+  if (query) conditions.push(like(depedSchools.schoolName, `%${query}%`));
+  if (region) conditions.push(eq(depedSchools.region, region));
+  if (province) conditions.push(eq(depedSchools.province, province));
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  const [rows, countResult] = await Promise.all([
+    db.select().from(depedSchools).where(where).limit(pageSize).offset((page - 1) * pageSize).orderBy(depedSchools.schoolName),
+    db.select({ count: sql<number>`count(*)` }).from(depedSchools).where(where),
+  ]);
+  return { rows, total: Number(countResult[0]?.count ?? 0) };
+}
+
+export async function bulkInsertDepedSchools(rows: (typeof depedSchools.$inferInsert)[]) {
+  const db = await getDb();
+  if (!db || rows.length === 0) return 0;
+  // Clear existing and re-import
+  await db.delete(depedSchools);
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += 200) chunks.push(rows.slice(i, i + 200));
+  for (const chunk of chunks) await db.insert(depedSchools).values(chunk);
+  return rows.length;
+}
+
+export async function getDepedRegions() {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.selectDistinct({ region: depedSchools.region }).from(depedSchools).orderBy(depedSchools.region);
+  return result.map((r) => r.region).filter(Boolean) as string[];
+}
+
+export async function getDepedProvinces(region?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const q = db.selectDistinct({ province: depedSchools.province }).from(depedSchools);
+  if (region) q.where(eq(depedSchools.region, region));
+  const result = await q.orderBy(depedSchools.province);
+  return result.map((r) => r.province).filter(Boolean) as string[];
 }

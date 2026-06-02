@@ -23,6 +23,7 @@ import Receipts from "./pages/Receipts";
 import VloggerInquiries from "./pages/VloggerInquiries";
 import ContactsExport from "./pages/ContactsExport";
 import CreatorScan from "./pages/CreatorScan";
+import MediaScan from "./pages/MediaScan";
 import Resources from "./pages/Resources";
 import DepEdDirectory from "./pages/DepEdDirectory";
 
@@ -48,6 +49,7 @@ function Router() {
       <Route path={"/admin/vlogger-inquiries"} component={VloggerInquiries} />
       <Route path={"/admin/contacts-export"} component={ContactsExport} />
       <Route path={"/admin/creator-scan"} component={CreatorScan} />
+      <Route path={"/admin/media-scan"} component={MediaScan} />
       <Route path={"/admin/resources"} component={Resources} />
       <Route path={"/admin/deped-directory"} component={DepEdDirectory} />
       <Route path={"/404"} component={NotFound} />

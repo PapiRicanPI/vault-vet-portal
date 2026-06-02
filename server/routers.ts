@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { readFileSync } from "fs";
+import { parse } from "csv-parse/sync";
 import { nanoid } from "nanoid";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -48,7 +50,7 @@ import { scoreApplication } from "./scoring";
 import { generateVolunteerCertificate } from "./volunteerCertificate";
 import { generateProgramDocument, ProgramDocType } from "./programDocumentPdf";
 import { sendSubmissionConfirmation, sendInvitationEmail, sendApprovalEmail, sendRejectionEmail, sendMoreInfoEmail, sendTeacherConfirmationEmail, sendVolunteerConfirmationEmail, sendVolunteerApprovalEmail, sendVolunteerRejectionEmail, sendReengagementEmail, sendPressReleaseEmail, sendPrincipalFellowshipEmail, sendFollowUpFellowshipEmail, sendVloggerInquiryEmail } from "./email";
-import { getMediaOutreachStatuses, upsertMediaOutreachStatus, getDonorContacts, getDonorContactById, createDonorContact, updateDonorContact, deleteDonorContact, getAllVloggerInquiries, getVloggerInquiryById, createVloggerInquiry, updateVloggerInquiry, deleteVloggerInquiry, getAllScanLeads, saveScanLead, updateScanLeadStatus, deleteScanLead } from "./db";
+import { getMediaOutreachStatuses, upsertMediaOutreachStatus, getDonorContacts, getDonorContactById, createDonorContact, updateDonorContact, deleteDonorContact, getAllVloggerInquiries, getVloggerInquiryById, createVloggerInquiry, updateVloggerInquiry, deleteVloggerInquiry, getAllScanLeads, saveScanLead, updateScanLeadStatus, deleteScanLead, getMediaLeads, createMediaLead, updateMediaLead, getDepedSchoolCount, getDepedRegions, getDepedProvinces, searchDepedSchools, bulkInsertDepedSchools } from "./db";
 import { ENV } from "./_core/env";
 import { callDataApi } from "./_core/dataApi";
 import {
@@ -911,7 +913,7 @@ Respond with valid JSON only:
 
     generateProgramDoc: publicProcedure
       .input(z.object({
-        docType: z.enum(["consent_form", "confidentiality_agreement", "sample_research_task", "program_summary"]),
+        docType: z.enum(["consent_form", "confidentiality_agreement", "sample_research_task", "program_summary", "release_of_liability"]),
       }))
       .mutation(async ({ input }) => {
         const { url, docId } = await generateProgramDocument(input.docType as ProgramDocType);
@@ -2234,6 +2236,128 @@ Respond with valid JSON only:
         await deleteScanLead(input.id);
         return { success: true };
       }),
+  }),
+
+  // ─── DEPED DIRECTORY ────────────────────────────────────────────────────────
+  deped: router({
+    count: protectedProcedure.query(() => getDepedSchoolCount()),
+    regions: protectedProcedure.query(() => getDepedRegions()),
+    provinces: protectedProcedure.input(z.object({ region: z.string().optional() })).query(({ input }) => getDepedProvinces(input.region)),
+    search: protectedProcedure
+      .input(z.object({ query: z.string().default(""), region: z.string().optional(), province: z.string().optional(), page: z.number().default(1), pageSize: z.number().default(50) }))
+      .query(({ input }) => searchDepedSchools(input.query, input.region, input.province, input.page, input.pageSize)),
+    importFromCsv: adminProcedure.mutation(async () => {
+      // Load the preloaded CSV from the server filesystem
+      let csvContent: string;
+      try {
+        csvContent = readFileSync("/home/ubuntu/deped_schools.csv", "utf-8");
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DepEd CSV file not found on server" });
+      }
+      const rows = parse(csvContent, { columns: true, skip_empty_lines: true });
+      const schools = rows.map((r: any) => ({
+        schoolId: r["school_id"] || r["School ID"] || r["schoolId"] || r["id"] || "",
+        schoolName: r["school_name"] || r["School Name"] || r["schoolName"] || r["name"] || "",
+        region: r["region"] || r["Region"] || "",
+        province: r["province"] || r["Province"] || "",
+        municipality: r["municipality"] || r["Municipality"] || r["City/Municipality"] || "",
+        programs: r["programs"] || r["Programs"] || r["Strand"] || "",
+        tvlSpecializations: r["tvl_specializations"] || r["TVL Specializations"] || r["tvlSpecializations"] || r["TVL"] || "",
+      })).filter((s: any) => s.schoolName);
+      const count = await bulkInsertDepedSchools(schools);
+      return { imported: count };
+    }),
+  }),
+
+  // ─── MEDIA SCAN ─────────────────────────────────────────────────────────────
+  mediaScan: router({
+    search: protectedProcedure
+      .input(z.object({ query: z.string().min(1), sources: z.array(z.enum(["Google News", "YouTube", "Reddit", "Google Web"])).default(["Google News"]) }))
+      .mutation(async ({ input }) => {
+        const results: any[] = [];
+        for (const source of input.sources) {
+          try {
+            if (source === "Google News") {
+              const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(input.query)}&hl=en-US&gl=US&ceid=US:en`;
+              const res = await fetch(rssUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+              const xml = await res.text();
+              const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
+              for (const item of items.slice(0, 10)) {
+                const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1] || item.match(/<title>(.*?)<\/title>/)?.[1] || "";
+                const link = item.match(/<link>(.*?)<\/link>/)?.[1] || "";
+                const description = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/)?.[1] || "";
+                if (title && link) results.push({ title, url: link, source: "Google News", snippet: description.replace(/<[^>]+>/g, "").slice(0, 200), publishedAt: null });
+              }
+            } else if (source === "Reddit") {
+              const res = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(input.query)}&sort=relevance&limit=10`, { headers: { "User-Agent": "Mozilla/5.0" } });
+              const json = await res.json();
+              for (const post of json?.data?.children || []) {
+                const d = post.data;
+                results.push({ title: d.title, url: `https://reddit.com${d.permalink}`, source: "Reddit", snippet: d.selftext?.slice(0, 200) || "", publishedAt: d.created_utc ? new Date(d.created_utc * 1000).toISOString() : null });
+              }
+            } else if (source === "YouTube") {
+              const res = await fetch(`https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(input.query)}&type=video&sort_by=upload_date`, { headers: { "User-Agent": "Mozilla/5.0" } });
+              if (res.ok) {
+                const json = await res.json();
+                for (const v of (json || []).slice(0, 10)) {
+                  results.push({ title: v.title, url: `https://youtube.com/watch?v=${v.videoId}`, source: "YouTube", snippet: v.description?.slice(0, 200) || "", publishedAt: v.published ? new Date(v.published * 1000).toISOString() : null });
+                }
+              }
+            } else if (source === "Google Web") {
+              const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(input.query)}&hl=en&gl=US`;
+              const res = await fetch(rssUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+              const xml = await res.text();
+              const items = xml.match(/<item>([\s\S]*?)<\/item>/g) || [];
+              for (const item of items.slice(0, 10)) {
+                const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1] || item.match(/<title>(.*?)<\/title>/)?.[1] || "";
+                const link = item.match(/<link>(.*?)<\/link>/)?.[1] || "";
+                const description = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/)?.[1] || "";
+                if (title && link) results.push({ title, url: link, source: "Google Web", snippet: description.replace(/<[^>]+>/g, "").slice(0, 200), publishedAt: null });
+              }
+            }
+          } catch (e) {
+            console.warn(`[MediaScan] Error searching ${source}:`, e);
+          }
+        }
+        return results;
+      }),
+    leads: router({
+      list: protectedProcedure.input(z.object({ status: z.string().optional() })).query(({ input }) => getMediaLeads(input.status)),
+      save: protectedProcedure
+        .input(
+          z.object({
+            title: z.string(),
+            url: z.string(),
+            source: z.enum(["Google News", "YouTube", "Reddit", "Google Web"]),
+            snippet: z.string().optional(),
+            publishedAt: z.string().optional(),
+            rightsStatus: z.enum(["Unknown", "Free to Use", "Copyrighted", "Fair Use"]).default("Unknown"),
+          })
+        )
+        .mutation(async ({ input, ctx }) => {
+          await createMediaLead({
+            ...input,
+            publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+            savedBy: ctx.user.name ?? ctx.user.email ?? "Unknown",
+          });
+          return { success: true };
+        }),
+      update: protectedProcedure
+        .input(
+          z.object({
+            id: z.number(),
+            status: z.enum(["Lead", "Verified", "Coded", "Archived"]).optional(),
+            rightsStatus: z.enum(["Unknown", "Free to Use", "Copyrighted", "Fair Use"]).optional(),
+            caseRef: z.string().optional(),
+            notes: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          await updateMediaLead(id, data);
+          return { success: true };
+        }),
+    }),
   }),
 });
 export type AppRouter = typeof appRouter;

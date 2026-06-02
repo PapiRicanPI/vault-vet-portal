@@ -493,3 +493,38 @@ export const creatorScanLeads = mysqlTable("creator_scan_leads", {
 });
 export type CreatorScanLead = typeof creatorScanLeads.$inferSelect;
 export type InsertCreatorScanLead = typeof creatorScanLeads.$inferInsert;
+
+// ── Media Scan Leads — saved leads from broader investigative news scans ───────
+export const mediaLeads = mysqlTable("media_leads", {
+  id: int("id").autoincrement().primaryKey(),
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  source: mysqlEnum("source", ["Google News", "YouTube", "Reddit", "Google Web"]).notNull(),
+  platform: varchar("platform", { length: 64 }),
+  publishedAt: timestamp("publishedAt"),
+  snippet: text("snippet"),
+  rightsStatus: mysqlEnum("rightsStatus", ["Unknown", "Free to Use", "Copyrighted", "Fair Use"]).default("Unknown").notNull(),
+  status: mysqlEnum("status", ["Lead", "Verified", "Coded", "Archived"]).default("Lead").notNull(),
+  caseRef: varchar("caseRef", { length: 128 }),
+  notes: text("notes"),
+  savedBy: varchar("savedBy", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MediaLead = typeof mediaLeads.$inferSelect;
+export type InsertMediaLead = typeof mediaLeads.$inferInsert;
+
+// ─── DEPED DIRECTORY ──────────────────────────────────────────────────────────
+export const depedSchools = mysqlTable("deped_schools", {
+  id: int("id").autoincrement().primaryKey(),
+  schoolId: varchar("schoolId", { length: 64 }),
+  schoolName: varchar("schoolName", { length: 255 }).notNull(),
+  region: varchar("region", { length: 128 }),
+  province: varchar("province", { length: 128 }),
+  municipality: varchar("municipality", { length: 128 }),
+  programs: text("programs"),
+  tvlSpecializations: text("tvlSpecializations"),
+  importedAt: timestamp("importedAt").defaultNow().notNull(),
+});
+export type DepedSchool = typeof depedSchools.$inferSelect;
+export type InsertDepedSchool = typeof depedSchools.$inferInsert;
