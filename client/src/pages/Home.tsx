@@ -127,7 +127,7 @@ export default function Home() {
               ☕ Buy Me a Coffee
             </a>
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
+              href={`https://x.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -526,7 +526,7 @@ export default function Home() {
 
             {/* Share on X/Twitter */}
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
+              href={`https://x.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{

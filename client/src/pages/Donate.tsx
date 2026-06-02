@@ -211,7 +211,7 @@ export default function Donate() {
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           <a
-            href={`https://twitter.com/intent/tweet?text=Support%20independent%20investigative%20journalism%20exposing%20poverty%20fraud.%20Reader-supported%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
+            href={`https://x.com/intent/tweet?text=Support%20independent%20investigative%20journalism%20exposing%20poverty%20fraud.%20Reader-supported%2C%20no%20corporate%20backing.&url=${encodeURIComponent("https://vet.thevaultinvestigates.cloud/donate")}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(180,150,50,0.2)", borderRadius: "4px", padding: "0.55rem 1rem", fontSize: "0.75rem", color: "rgba(240,230,200,0.7)", textDecoration: "none", fontFamily: "'Cinzel', serif", letterSpacing: "0.06em", transition: "all 0.2s" }}

@@ -384,7 +384,7 @@ export default function VolunteerPage() {
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#FFDD00", color: "#000", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
             ☕ Buy Me a Coffee
           </a>
-          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
+          <a href={`https://x.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
             target="_blank" rel="noreferrer"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(201,168,76,0.12)", color: "#c9a84c", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
             𝕏 Share
