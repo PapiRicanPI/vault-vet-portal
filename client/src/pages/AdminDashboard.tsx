@@ -1293,8 +1293,8 @@ export default function AdminDashboard() {
       </header>
 
       {/* Tab navigation */}
-      <div style={{ borderBottom: "1px solid var(--vault-border)", background: "var(--vault-surface)" }}>
-        <div className="max-w-6xl mx-auto px-6" style={{ display: "flex", gap: "0" }}>
+      <div style={{ borderBottom: "1px solid var(--vault-border)", background: "var(--vault-surface)", overflowX: "auto" }}>
+        <div className="max-w-6xl mx-auto px-6" style={{ display: "flex", gap: "0", flexWrap: "wrap", minWidth: "max-content" }}>
           {(["applications", "tips", "volunteers", "outreach"] as const).map(view => (
             <button
               key={view}
