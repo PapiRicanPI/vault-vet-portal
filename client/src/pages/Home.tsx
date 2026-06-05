@@ -55,7 +55,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Donation Strip — above the fold */}
+      {/* Support Strip — above the fold */}
       <div
         style={{
           background: "linear-gradient(90deg, #0a0900 0%, #1a1400 50%, #0a0900 100%)",
@@ -73,7 +73,7 @@ export default function Home() {
             fontFamily: "Cinzel, serif",
             whiteSpace: "nowrap",
           }}>
-            Support the Investigation
+            Support the Work
           </span>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <a
@@ -418,7 +418,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Donation CTA Banner */}
+      {/* Support CTA Banner */}
       <div
         style={{
           background: "linear-gradient(135deg, #0d0c08 0%, #120f06 50%, #0d0c08 100%)",

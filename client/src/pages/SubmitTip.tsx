@@ -328,7 +328,7 @@ export default function SubmitTip() {
         </form>
       </div>
 
-      {/* Donation Banner */}
+      {/* Support Banner */}
       <div
         style={{
           background: "linear-gradient(135deg, #0d0c08 0%, #120f06 50%, #0d0c08 100%)",
@@ -357,7 +357,7 @@ export default function SubmitTip() {
             margin: "0 0 10px",
             lineHeight: 1.4,
           }}>
-            Your tip matters. So does your support.
+            Your tip matters. Support our independent research.
           </h3>
           <p style={{
             color: "#888",
@@ -367,7 +367,7 @@ export default function SubmitTip() {
             fontFamily: "EB Garamond, serif",
           }}>
             The Vault Investigates is reader-supported.
-            If this work is worth doing, consider helping fund it.
+            If you find this research valuable, consider supporting our independent infrastructure.
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <a

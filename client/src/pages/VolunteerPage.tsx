@@ -372,23 +372,15 @@ export default function VolunteerPage() {
         </Link>
       </div>
 
-      {/* Donation Strip */}
+      {/* Support Strip */}
       <div style={{ background: "linear-gradient(90deg, #1a1200, #0d0d00, #1a1200)", borderBottom: "1px solid rgba(201,168,76,0.25)", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-        <span style={{ color: "#b8a060", fontSize: 13, fontStyle: "italic" }}>This program is free. The investigation is reader-supported. Help keep it alive.</span>
+        <span style={{ color: "#b8a060", fontSize: 13, fontStyle: "italic" }}>This program is free and supported by our independent journalism platform. Learn more about our mission.</span>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-          <a href="https://gofund.me/3a4e564d5" target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#00b964", color: "white", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
-            💚 Support on GoFundMe
-          </a>
-          <a href="https://buymeacoffee.com/thevaultinvestigates" target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#FFDD00", color: "#000", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
-            ☕ Buy Me a Coffee
-          </a>
-          <a href={`https://x.com/intent/tweet?text=${encodeURIComponent("Support The Vault Investigates — independent journalism exposing how poverty is exploited. Every contribution keeps this work alive.")}&url=${encodeURIComponent("https://gofund.me/3a4e564d5")}`}
-            target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(201,168,76,0.12)", color: "#c9a84c", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
-            𝕏 Share
-          </a>
+          <Link href="/about">
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(201,168,76,0.12)", color: "#c9a84c", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none", cursor: "pointer" }}>
+              📖 About Our Mission
+            </span>
+          </Link>
         </div>
       </div>
 
