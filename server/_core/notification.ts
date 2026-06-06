@@ -106,9 +106,85 @@ export async function notifyOwner(
       return false;
     }
 
+    // Also dispatch to Discord/Telegram webhooks if configured
+    await Promise.all([
+      sendDiscordAlert(title, content),
+      sendTelegramAlert(title, content)
+    ]).catch(err => {
+      console.warn("[Notification] Webhook dispatch error:", err);
+    });
+
     return true;
   } catch (error) {
     console.warn("[Notification] Error calling notification service:", error);
+    return false;
+  }
+}
+
+async function sendDiscordAlert(title: string, content: string): Promise<boolean> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (!webhookUrl) return false;
+
+  try {
+    const payload = {
+      username: "The Vault Command Center",
+      avatar_url: "https://thevaultinvestigates.cloud/favicon.ico",
+      embeds: [
+        {
+          title: title,
+          description: content,
+          color: 15158332, // Dark Red / Crimson
+          timestamp: new Date().toISOString(),
+          footer: {
+            text: "The Vault Investigates — Alert System",
+          },
+        },
+      ],
+    };
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      console.warn(`[Discord Webhook] Failed to send: ${response.status} ${response.statusText}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.warn("[Discord Webhook] Error:", error);
+    return false;
+  }
+}
+
+async function sendTelegramAlert(title: string, content: string): Promise<boolean> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return false;
+
+  try {
+    const text = `🚨 *${title}*\n\n${content}`;
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text,
+        parse_mode: "Markdown",
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(`[Telegram Webhook] Failed to send: ${response.status} ${response.statusText}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.warn("[Telegram Webhook] Error:", error);
     return false;
   }
 }
