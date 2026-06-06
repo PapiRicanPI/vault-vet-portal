@@ -1570,7 +1570,7 @@ export default function AdminDashboard() {
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Outreach Campaign Summary Widget — always visible at top of dashboard */}
         <div style={{ marginBottom: "2rem" }}>
-          <OutreachSummaryWidget />
+          <OutreachSummaryWidget onSelectMediaOutreach={() => setActiveView("outreach")} />
         </div>
         {activeView === "tips" && (
           <div>

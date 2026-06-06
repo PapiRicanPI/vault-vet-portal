@@ -91,6 +91,7 @@ function CampaignCard({
   progressLabel,
   pills,
   alerts,
+  onClick,
 }: {
   title: string;
   icon: string;
@@ -101,6 +102,7 @@ function CampaignCard({
   progressLabel: string;
   pills: { label: string; value: number; color: string }[];
   alerts: { count: number; label: string; color: string }[];
+  onClick?: () => void;
 }) {
   const pct = progressMax > 0 ? Math.round((progressValue / progressMax) * 100) : 0;
 
@@ -123,11 +125,30 @@ function CampaignCard({
           <span style={{ fontSize: "1rem" }}>{icon}</span>
           <span style={{ color: accentColor, fontFamily: "Cinzel, serif", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>{title}</span>
         </div>
-        <Link href={href}>
-          <span style={{ color: "var(--vault-muted)", fontSize: "0.68rem", cursor: "pointer", textDecoration: "underline", fontFamily: "Cinzel, serif", letterSpacing: "0.03em" }}>
+        {onClick ? (
+          <button
+            onClick={onClick}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              color: "var(--vault-muted)",
+              fontSize: "0.68rem",
+              cursor: "pointer",
+              textDecoration: "underline",
+              fontFamily: "Cinzel, serif",
+              letterSpacing: "0.03em",
+            }}
+          >
             View →
-          </span>
-        </Link>
+          </button>
+        ) : (
+          <Link href={href}>
+            <span style={{ color: "var(--vault-muted)", fontSize: "0.68rem", cursor: "pointer", textDecoration: "underline", fontFamily: "Cinzel, serif", letterSpacing: "0.03em" }}>
+              View →
+            </span>
+          </Link>
+        )}
       </div>
 
       {/* Progress */}
@@ -156,7 +177,7 @@ function CampaignCard({
 
 // ─── Widget ───────────────────────────────────────────────────────────────────
 
-export default function OutreachSummaryWidget() {
+export default function OutreachSummaryWidget({ onSelectMediaOutreach }: { onSelectMediaOutreach?: () => void }) {
   const { data, isLoading, error } = trpc.campaigns.summary.useQuery(undefined, {
     refetchInterval: 60_000,
   });
@@ -252,6 +273,7 @@ export default function OutreachSummaryWidget() {
             { label: "Pending", value: s.media.total - s.media.sent, color: "var(--vault-muted)" },
           ]}
           alerts={[]}
+          onClick={onSelectMediaOutreach}
         />
 
         {/* Donor Outreach */}
