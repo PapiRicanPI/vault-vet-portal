@@ -4,8 +4,9 @@
   "outputDirectory": "dist",
   "installCommand": "pnpm install",
   "framework": null,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/server" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/server" },
+    { "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff2?))", "dest": "/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
