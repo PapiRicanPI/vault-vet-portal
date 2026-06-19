@@ -3,14 +3,19 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/public",
   "framework": null,
-  "rewrites": [
-    {
-      "source": "/api/trpc/:path*",
-      "destination": "/api/trpc/[trpc]"
+  "functions": {
+    "api/server.ts": {
+      "includeFiles": "server/**"
     },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+    "api/trpc/[trpc].ts": {
+      "includeFiles": "server/**"
     }
+  },
+  "rewrites": [
+    { "source": "/api/trpc/:path*", "destination": "/api/trpc/[trpc]" },
+    { "source": "/api/auth/:path*", "destination": "/api/server" },
+    { "source": "/api/oauth/:path*", "destination": "/api/server" },
+    { "source": "/manus-storage/:path*", "destination": "/api/server" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
