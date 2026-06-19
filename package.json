@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "npx --yes vite build",
+    "build": "npm install @tailwindcss/vite @vitejs/plugin-react vite --legacy-peer-deps && npx vite build",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
