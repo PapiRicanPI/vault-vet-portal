@@ -293,7 +293,7 @@ export default function CampaignSequencer() {
       <div style={{ minHeight: "100vh", background: "var(--vault-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ color: "var(--vault-gold)", fontFamily: "Cinzel, serif", fontSize: "1rem", marginBottom: "1rem" }}>Admin Access Required</div>
-          <a href={getLoginUrl()} style={{ color: "var(--vault-gold)", textDecoration: "underline", fontSize: "0.85rem" }}>Sign in</a>
+          <a href="/admin/login" style={{ color: "var(--vault-gold)", textDecoration: "underline", fontSize: "0.85rem" }}>Sign in</a>
         </div>
       </div>
     );

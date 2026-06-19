@@ -167,7 +167,7 @@ export default function VaultLayout({ children, title }: { children: React.React
             <p className="text-muted-foreground text-sm">Admin Portal -- Philippines · Puerto Rico · United States</p>
           </div>
           <Button asChild className="w-full" size="lg">
-            <a href={getLoginUrl()}>Sign in with Manus</a>
+            <a href="/admin/login">Sign in</a>
           </Button>
         </div>
       </div>

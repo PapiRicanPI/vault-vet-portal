@@ -504,7 +504,7 @@ export default function ResearcherDashboard() {
     return (
       <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
         <p className="text-zinc-400 text-lg">Please log in to access your researcher workspace.</p>
-        <a href={getLoginUrl()} className="bg-amber-600 hover:bg-amber-500 text-black font-bold px-6 py-2.5 rounded-lg transition-colors">
+        <a href="/admin/login" className="bg-amber-600 hover:bg-amber-500 text-black font-bold px-6 py-2.5 rounded-lg transition-colors">
           Log In
         </a>
       </div>

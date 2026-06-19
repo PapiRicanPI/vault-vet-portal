@@ -1205,7 +1205,7 @@ export default function AdminDashboard() {
           Admin Access Required
         </h2>
         <a
-          href={getLoginUrl()}
+          href="/admin/login"
           className="px-8 py-3 text-sm tracking-wider uppercase"
           style={{
             background: "var(--vault-gold)",
