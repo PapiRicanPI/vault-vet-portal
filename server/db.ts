@@ -1,5 +1,6 @@
 import { and, desc, eq, like, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import {
   InsertUser,
   donorContacts,
@@ -27,7 +28,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL, { ssl: "require" });
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -64,7 +66,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  await db
+    .insert(users)
+    .values(values)
+    .onConflictDoUpdate({ target: users.openId, set: updateSet });
+}
+
+export async function setUserRole(openId: string, role: "user" | "admin"): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.openId, openId));
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -138,7 +149,7 @@ export async function getPublicStats() {
     pending: Number(pendingResult[0]?.count ?? 0),
     approvedResearchers: approvedCount,
     tipsReceived: Number(tipsResult[0]?.count ?? 0),
-    countriesRepresented: 0, // not tracked separately
+    countriesRepresented: 0,
   };
 }
 
@@ -154,8 +165,6 @@ export async function getActivityStats() {
     db.select().from(tips).orderBy(desc(tips.createdAt)).limit(10),
     db.select().from(vettingApplications).where(eq(vettingApplications.status, "approved")),
   ]);
-  // Build applicantsWithLogin array — currently no separate login tracking table,
-  // so we approximate using the application's updatedAt as a proxy
   const applicantsWithLogin = allApproved.map((a) => ({
     id: a.id,
     hasAccount: true,
@@ -293,9 +302,10 @@ export async function upsertMediaOutreachStatus(
   const updateData: Record<string, unknown> = { status };
   if (lastContactedAt) updateData.lastContactedAt = lastContactedAt;
   if (responseNotes !== undefined) updateData.responseNotes = responseNotes;
-  await db.insert(mediaOutreachStatus)
+  await db
+    .insert(mediaOutreachStatus)
     .values({ contactNum, status: status as any, lastContactedAt: lastContactedAt ?? null, responseNotes: responseNotes ?? null })
-    .onDuplicateKeyUpdate({ set: updateData });
+    .onConflictDoUpdate({ target: mediaOutreachStatus.contactNum, set: updateData });
 }
 
 // ─── DONOR CONTACTS ───────────────────────────────────────────────────────────
@@ -375,7 +385,10 @@ export async function getBookmarks(userId: number) {
 export async function addBookmark(userId: number, caseId: string, caseTitle?: string) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(researcherBookmarks).values({ researcherId: userId, caseId, caseTitle: caseTitle ?? null }).onDuplicateKeyUpdate({ set: { caseTitle: caseTitle ?? null } });
+  await db
+    .insert(researcherBookmarks)
+    .values({ researcherId: userId, caseId, caseTitle: caseTitle ?? null })
+    .onConflictDoNothing();
 }
 
 export async function removeBookmark(userId: number, caseId: string) {
@@ -395,7 +408,12 @@ export async function getNoteForCase(userId: number, caseId: string) {
 export async function upsertNote(userId: number, caseId: string, note: string) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(researcherNotes).values({ researcherId: userId, caseId, note }).onDuplicateKeyUpdate({ set: { note } });
+  const existing = await getNoteForCase(userId, caseId);
+  if (existing) {
+    await db.update(researcherNotes).set({ note, updatedAt: new Date() }).where(eq(researcherNotes.id, existing.id));
+  } else {
+    await db.insert(researcherNotes).values({ researcherId: userId, caseId, note });
+  }
 }
 
 // ─── RESEARCHER PROJECTS ──────────────────────────────────────────────────────
@@ -408,8 +426,11 @@ export async function getProjects(userId: number) {
 export async function createProject(userId: number, title: string, description?: string) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.insert(researcherProjects).values({ researcherId: userId, title, description: description ?? null });
-  return (result as any)[0]?.insertId ?? (result as any).insertId ?? null;
+  const result = await db
+    .insert(researcherProjects)
+    .values({ researcherId: userId, title, description: description ?? null })
+    .returning({ id: researcherProjects.id });
+  return result[0]?.id ?? null;
 }
 
 export async function updateProjectCases(projectId: number, userId: number, caseIds: string[]) {
@@ -430,7 +451,6 @@ export async function recordRecentlyViewed(userId: number, caseId: string, caseT
   if (!db) return;
   await db.delete(researcherRecentlyViewed).where(and(eq(researcherRecentlyViewed.researcherId, userId), eq(researcherRecentlyViewed.caseId, caseId)));
   await db.insert(researcherRecentlyViewed).values({ researcherId: userId, caseId, caseTitle: caseTitle ?? null });
-  // Keep only last 20
   const rows = await db.select({ id: researcherRecentlyViewed.id }).from(researcherRecentlyViewed).where(eq(researcherRecentlyViewed.researcherId, userId)).orderBy(desc(researcherRecentlyViewed.viewedAt)).limit(100);
   if (rows.length > 20) {
     const toDelete = rows.slice(20).map((r) => r.id);
@@ -520,7 +540,6 @@ export async function searchDepedSchools(query: string, region?: string, provinc
 export async function bulkInsertDepedSchools(rows: (typeof depedSchools.$inferInsert)[]) {
   const db = await getDb();
   if (!db || rows.length === 0) return 0;
-  // Clear existing and re-import
   await db.delete(depedSchools);
   const chunks = [];
   for (let i = 0; i < rows.length; i += 200) chunks.push(rows.slice(i, i + 200));
@@ -538,8 +557,11 @@ export async function getDepedRegions() {
 export async function getDepedProvinces(region?: string) {
   const db = await getDb();
   if (!db) return [];
-  const q = db.selectDistinct({ province: depedSchools.province }).from(depedSchools);
-  if (region) q.where(eq(depedSchools.region, region));
-  const result = await q.orderBy(depedSchools.province);
+  const conditions = region ? [eq(depedSchools.region, region)] : [];
+  const result = await db
+    .selectDistinct({ province: depedSchools.province })
+    .from(depedSchools)
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(depedSchools.province);
   return result.map((r) => r.province).filter(Boolean) as string[];
 }
