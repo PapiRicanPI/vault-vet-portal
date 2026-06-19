@@ -1,19 +1,16 @@
 #!/usr/bin/env node
 // build-api.mjs
 // Bundles the two Vercel serverless function entry points and their full
-// local dependency tree into single self-contained .js files. This avoids
-// Vercel's per-file TypeScript compilation, which does not resolve
-// extensionless local imports (server/_core/app, ../routers, etc.) at
-// runtime under Node's native ESM loader.
+// local dependency tree into single self-contained .js files. Output uses
+// distinct filenames (not matching the .ts source) so Vercel's function
+// scan finds both the source .ts and bundled .js as separate functions —
+// vercel.json rewrites route all real traffic to the bundled versions only.
 //
 // Run as part of `npm run build`, after `vite build`.
 
 import { build } from "esbuild";
-import { rmSync } from "node:fs";
 
 const externalPackages = [
-  // Keep node_modules packages external (not bundled) — esbuild will still
-  // bundle all *local* relative imports, which is the actual problem.
   "express",
   "@trpc/server",
   "axios",
@@ -51,11 +48,7 @@ async function buildEntry(entry, outfile) {
   });
 }
 
-await buildEntry("api/server.ts", "api/server.js");
-await buildEntry("api/trpc/[trpc].ts", "api/trpc/[trpc].js");
-
-// Remove the .ts sources so Vercel's function scan only sees compiled .js
-rmSync("api/server.ts", { force: true });
-rmSync("api/trpc/[trpc].ts", { force: true });
+await buildEntry("api/server.ts", "api/server-bundled.js");
+await buildEntry("api/trpc/[trpc].ts", "api/trpc-bundled.js");
 
 console.log("✅ API functions bundled successfully");

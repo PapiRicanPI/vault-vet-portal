@@ -113,5 +113,5 @@ temp/
 client/public/__manus__/version.json
 .vercel
 .env*
-api/server.js
-api/trpc/[trpc].js
+api/server-bundled.js
+api/trpc-bundled.js
