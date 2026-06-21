@@ -1,13 +1,11 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/public",
   "framework": null,
   "rewrites": [
-    { "source": "/api/trpc/:path*", "destination": "/api/trpc-bundled" },
-    { "source": "/api/auth/:path*", "destination": "/api/server-bundled" },
-    { "source": "/api/oauth/:path*", "destination": "/api/server-bundled" },
-    { "source": "/manus-storage/:path*", "destination": "/api/server-bundled" },
+    { "source": "/api/trpc/:path*", "destination": "/api/trpc/[trpc]" },
+    { "source": "/api/auth/:path*", "destination": "/api/server" },
+    { "source": "/api/oauth/:path*", "destination": "/api/server" },
+    { "source": "/manus-storage/:path*", "destination": "/api/server" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

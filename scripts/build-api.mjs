@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 // build-api.mjs
 // Bundles the two Vercel serverless function entry points and their full
-// local dependency tree into single self-contained .js files. Output uses
-// distinct filenames (not matching the .ts source) so Vercel's function
-// scan finds both the source .ts and bundled .js as separate functions —
-// vercel.json rewrites route all real traffic to the bundled versions only.
-//
-// Run as part of `npm run build`, after `vite build`.
+// local dependency tree into self-contained .js files, OVERWRITING the
+// original .ts source paths. This must run as part of `vercel-build`
+// (Vercel's special pre-build script name) so the compiled .js exists
+// BEFORE Vercel's own function-detection scan runs.
 
 import { build } from "esbuild";
+import { renameSync, rmSync } from "node:fs";
 
 const externalPackages = [
   "express",
@@ -48,7 +47,13 @@ async function buildEntry(entry, outfile) {
   });
 }
 
-await buildEntry("api/server.ts", "api/server-bundled.js");
-await buildEntry("api/trpc/[trpc].ts", "api/trpc-bundled.js");
+await buildEntry("api/server.ts", "api/server.tmp.js");
+await buildEntry("api/trpc/[trpc].ts", "api/trpc/[trpc].tmp.js");
 
-console.log("✅ API functions bundled successfully");
+rmSync("api/server.ts", { force: true });
+rmSync("api/trpc/[trpc].ts", { force: true });
+
+renameSync("api/server.tmp.js", "api/server.js");
+renameSync("api/trpc/[trpc].tmp.js", "api/trpc/[trpc].js");
+
+console.log("✅ API functions bundled and swapped into place");
