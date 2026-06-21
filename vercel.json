@@ -3,14 +3,6 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/public",
   "framework": null,
-  "functions": {
-    "api/server-bundled.js": {
-      "runtime": "nodejs20.x"
-    },
-    "api/trpc-bundled.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     { "source": "/api/trpc/:path*", "destination": "/api/trpc-bundled" },
     { "source": "/api/auth/:path*", "destination": "/api/server-bundled" },
