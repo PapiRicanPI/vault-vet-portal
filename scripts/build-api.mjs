@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 // build-api.mjs
-// Bundles the two Vercel serverless function entry points and their full
-// local dependency tree into self-contained .js files, OVERWRITING the
-// original .ts source paths. This must run as part of `vercel-build`
-// (Vercel's special pre-build script name) so the compiled .js exists
-// BEFORE Vercel's own function-detection scan runs.
+// Bundles the TypeScript serverless function source (kept in api-src/,
+// which is NOT scanned by Vercel as a function directory) into compiled,
+// self-contained .js output at api/ (which IS scanned by Vercel).
+//
+// This is idempotent and safe to run on every build, including a fresh
+// clone where api/*.js doesn't exist yet, or a rebuild where it does.
 
 import { build } from "esbuild";
-import { renameSync, rmSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 
 const externalPackages = [
   "express",
@@ -47,13 +48,9 @@ async function buildEntry(entry, outfile) {
   });
 }
 
-await buildEntry("api/server.ts", "api/server.tmp.js");
-await buildEntry("api/trpc/[trpc].ts", "api/trpc/[trpc].tmp.js");
+mkdirSync("api/trpc", { recursive: true });
 
-rmSync("api/server.ts", { force: true });
-rmSync("api/trpc/[trpc].ts", { force: true });
+await buildEntry("api-src/server.ts", "api/server.js");
+await buildEntry("api-src/trpc/[trpc].ts", "api/trpc/[trpc].js");
 
-renameSync("api/server.tmp.js", "api/server.js");
-renameSync("api/trpc/[trpc].tmp.js", "api/trpc/[trpc].js");
-
-console.log("✅ API functions bundled and swapped into place");
+console.log("✅ API functions compiled from api-src/ into api/");
