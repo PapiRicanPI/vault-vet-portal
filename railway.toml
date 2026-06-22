@@ -4,7 +4,7 @@ buildCommand = "rm -f package-lock.json && npm install --legacy-peer-deps"
 
 [deploy]
 startCommand = "NODE_ENV=production npx tsx server/_core/index.ts"
-healthcheckPath = "/"
+healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3

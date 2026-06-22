@@ -25,5 +25,6 @@ export function createApp() {
     })
   );
 
+  app.get("/health", (_req, res) => res.json({ status: "ok" }));
   return app;
 }
