@@ -1,7 +1,8 @@
 import { createServer } from "http";
 import net from "net";
 import { createApp } from "./app";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./static";
+
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -28,8 +29,10 @@ async function startServer() {
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite.js");
     await setupVite(app, server);
   } else {
+
     serveStatic(app);
   }
 
