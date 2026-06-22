@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install --legacy-peer-deps"
+buildCommand = "rm -f package-lock.json && npm install --legacy-peer-deps"
 
 [deploy]
 startCommand = "NODE_ENV=production npx tsx server/_core/index.ts"
