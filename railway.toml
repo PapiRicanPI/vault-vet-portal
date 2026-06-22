@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install --legacy-peer-deps"
+
+[deploy]
+startCommand = "NODE_ENV=production npx tsx server/_core/index.ts"
+healthcheckPath = "/api/trpc/stats.public"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

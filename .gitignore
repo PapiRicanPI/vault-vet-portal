@@ -115,5 +115,3 @@ client/public/__manus__/version.json
 .env*
 api/server-bundled.js
 api/trpc-bundled.js
-api/server.js
-api/trpc/[trpc].js
