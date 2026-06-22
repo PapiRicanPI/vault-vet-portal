@@ -1,11 +1,24 @@
 {
+  "version": 2,
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/public",
   "framework": null,
-  "rewrites": [
-    { "source": "/api/trpc/:path*", "destination": "/api/trpc/[trpc]" },
-    { "source": "/api/auth/:path*", "destination": "/api/server" },
-    { "source": "/api/oauth/:path*", "destination": "/api/server" },
-    { "source": "/manus-storage/:path*", "destination": "/api/server" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  "builds": [
+    {
+      "src": "api/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/trpc/[trpc].js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/trpc/(.*)", "dest": "/api/trpc/[trpc]" },
+    { "src": "/api/auth/(.*)", "dest": "/api/server" },
+    { "src": "/api/oauth/(.*)", "dest": "/api/server" },
+    { "src": "/manus-storage/(.*)", "dest": "/api/server" },
+    { "src": "/((?!api/).*)", "dest": "/index.html" }
   ]
 }
