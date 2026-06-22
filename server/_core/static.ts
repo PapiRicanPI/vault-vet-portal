@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(new URL(".", import.meta.url).pathname, "public");
 
   if (!fs.existsSync(distPath)) {
     console.error(
