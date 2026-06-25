@@ -40,6 +40,7 @@ async function signAdminSession(openId: string, name: string): Promise<string> {
   return new SignJWT({
     openId,
     appId: "vault-admin-local",
+    role: "admin",
     name,
   })
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
