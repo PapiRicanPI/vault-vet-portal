@@ -41,7 +41,7 @@ export default function Home() {
               Receipts
             </a>
             <button
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate("/admin/login")}
               className="text-xs tracking-wider uppercase px-3 py-1.5 border transition-colors"
               style={{
                 borderColor: "var(--vault-border)",
