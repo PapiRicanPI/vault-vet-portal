@@ -9,7 +9,6 @@ export default function AdminLogin() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
     try {
       const res = await fetch("/api/auth/admin-login", {
         method: "POST",
@@ -17,15 +16,15 @@ export default function AdminLogin() {
         credentials: "include",
         body: JSON.stringify({ password }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data?.error || "Login failed. Please try again.");
         setLoading(false);
         return;
       }
-
+      if (data.token) {
+        localStorage.setItem("vault_admin_token", data.token);
+      }
       window.location.href = "/admin";
     } catch (err) {
       setError("Network error. Please try again.");
