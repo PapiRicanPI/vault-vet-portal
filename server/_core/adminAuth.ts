@@ -1,4 +1,6 @@
 import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const";
+import { webcrypto } from "node:crypto";
+if (!globalThis.crypto) (globalThis as any).crypto = webcrypto;
 import type { Express, Request, Response } from "express";
 import { SignJWT } from "jose";
 import crypto from "node:crypto";
