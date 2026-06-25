@@ -107,3 +107,4 @@ export function registerAdminAuthRoutes(app: Express) {
     res.json({ success: true });
   });
 }
+// Auto-logout old OAuth sessions on admin login page load
