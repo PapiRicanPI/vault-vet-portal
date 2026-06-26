@@ -7,6 +7,16 @@ import superjson from "superjson";
 import App from "./App";
 import "./index.css";
 
+// Bootstrap token from URL before React mounts
+if (typeof window !== 'undefined') {
+  const p = new URLSearchParams(window.location.search);
+  const t = p.get('token');
+  if (t) {
+    localStorage.setItem('vault_admin_token', decodeURIComponent(t));
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+}
+
 const queryClient = new QueryClient();
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
