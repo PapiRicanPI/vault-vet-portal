@@ -1250,7 +1250,8 @@ export default function AdminDashboard() {
     }
   }
 
-  if (user.role !== "admin") {
+  if (authLoading) return null;
+  if (!user || user.role !== "admin") {
     window.location.href = "/admin/login";
     return null;
   }
