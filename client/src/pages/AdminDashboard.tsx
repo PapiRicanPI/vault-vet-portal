@@ -1221,19 +1221,8 @@ export default function AdminDashboard() {
   }
 
   if (user.role !== "admin") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--vault-black)" }}>
-        <h2
-          className="text-xl mb-2 tracking-wide"
-          style={{ color: "var(--vault-text)", fontFamily: "Cinzel, serif" }}
-        >
-          Access Denied
-        </h2>
-        <p className="text-sm" style={{ color: "var(--vault-muted)" }}>
-          You do not have admin privileges.
-        </p>
-      </div>
-    );
+    window.location.href = "/admin/login";
+    return null;
   }
 
   const apps = (applications as Application[]) ?? [];
