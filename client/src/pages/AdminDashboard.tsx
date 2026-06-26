@@ -1220,6 +1220,16 @@ export default function AdminDashboard() {
     );
   }
 
+  // Extract token from URL param if present (post-login redirect)
+  if (typeof window !== "undefined") {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get("token");
+    if (urlToken) {
+      localStorage.setItem("vault_admin_token", urlToken);
+      window.history.replaceState({}, "", "/admin");
+    }
+  }
+
   if (user.role !== "admin") {
     window.location.href = "/admin/login";
     return null;
