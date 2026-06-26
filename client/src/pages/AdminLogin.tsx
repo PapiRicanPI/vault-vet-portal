@@ -25,7 +25,9 @@ export default function AdminLogin() {
       if (data.token) {
         localStorage.setItem("vault_admin_token", data.token);
       }
-      setTimeout(() => { window.location.href = "/admin"; }, 100);
+      localStorage.setItem("vault_admin_token", data.token);
+      await new Promise(r => setTimeout(r, 300));
+      window.location.replace("/admin");
     } catch (err) {
       setError("Network error. Please try again.");
       setLoading(false);
