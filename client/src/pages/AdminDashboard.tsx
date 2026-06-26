@@ -984,6 +984,16 @@ if (typeof window !== "undefined") {
   }
 }
 
+// Token bootstrap — must run before any hook
+if (typeof window !== "undefined") {
+  const p = new URLSearchParams(window.location.search);
+  const t = p.get("token");
+  if (t) {
+    localStorage.setItem("vault_admin_token", decodeURIComponent(t));
+    window.history.replaceState({}, "", "/admin");
+  }
+}
+
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
