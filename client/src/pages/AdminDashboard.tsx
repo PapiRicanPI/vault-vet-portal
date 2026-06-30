@@ -974,7 +974,7 @@ function SchoolSearchBox({ onSelect }: { onSelect: (school: DepEdSchoolResult) =
 // ─── Main Component ─────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [showInvite, setShowInvite] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -1260,6 +1260,24 @@ export default function AdminDashboard() {
             <span className="text-xs" style={{ color: "var(--vault-muted)" }}>
               {user.name}
             </span>
+            <button
+              onClick={async () => {
+                await logout();
+                localStorage.removeItem("vault_admin_token");
+                window.location.replace("/admin/login");
+              }}
+              className="text-xs px-3 py-2 tracking-wider uppercase"
+              style={{
+                background: "transparent",
+                border: "1px solid var(--vault-border)",
+                color: "var(--vault-muted)",
+                fontFamily: "Cinzel, serif",
+                borderRadius: "3px",
+                cursor: "pointer",
+              }}
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>
