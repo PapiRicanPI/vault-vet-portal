@@ -1,0 +1,432 @@
+[1mdiff --git a/client/src/_core/hooks/useAuth.ts b/client/src/_core/hooks/useAuth.ts[m
+[1mindex f7948c1..ae74995 100644[m
+[1m--- a/client/src/_core/hooks/useAuth.ts[m
+[1m+++ b/client/src/_core/hooks/useAuth.ts[m
+[36m@@ -1,20 +1,31 @@[m
+ import { trpc } from "@/lib/trpc";[m
+ import { TRPCClientError } from "@trpc/client";[m
+[31m-import { useCallback, useEffect, useMemo } from "react";[m
+[32m+[m[32mimport { useCallback, useMemo } from "react";[m
+ [m
+ type UseAuthOptions = {[m
+[32m+[m[32m  /** No longer used — redirect logic is handled by the consuming component */[m
+   redirectOnUnauthenticated?: boolean;[m
+   redirectPath?: string;[m
+ };[m
+ [m
+[31m-export function useAuth(options?: UseAuthOptions) {[m
+[31m-  const { redirectOnUnauthenticated = false, redirectPath = "/admin/login" } =[m
+[31m-    options ?? {};[m
+[32m+[m[32m/**[m
+[32m+[m[32m * Core auth hook.[m
+[32m+[m[32m *[m
+[32m+[m[32m * Returns a 3-state model:[m
+[32m+[m[32m *   loading = true  → auth.me query is still in-flight (no redirect decision should be made)[m
+[32m+[m[32m *   loading = false, user != null → authenticated[m
+[32m+[m[32m *   loading = false, user == null → unauthenticated[m
+[32m+[m[32m *[m
+[32m+[m[32m * The consuming component MUST wait for loading === false before deciding[m
+[32m+[m[32m * whether to redirect to /admin/login.[m
+[32m+[m[32m */[m
+[32m+[m[32mexport function useAuth(_options?: UseAuthOptions) {[m
+   const utils = trpc.useUtils();[m
+ [m
+   const meQuery = trpc.auth.me.useQuery(undefined, {[m
+     retry: false,[m
+     refetchOnWindowFocus: false,[m
+[32m+[m[32m    staleTime: 30_000, // avoid unnecessary refetches within 30s[m
+   });[m
+ [m
+   const logoutMutation = trpc.auth.logout.useMutation({[m
+[36m@@ -31,23 +42,23 @@[m [mexport function useAuth(options?: UseAuthOptions) {[m
+         error instanceof TRPCClientError &&[m
+         error.data?.code === "UNAUTHORIZED"[m
+       ) {[m
+[32m+[m[32m        // Already logged out — swallow[m
+         return;[m
+       }[m
+       throw error;[m
+     } finally {[m
+[32m+[m[32m      localStorage.removeItem("vault_admin_token");[m
+       utils.auth.me.setData(undefined, null);[m
+       await utils.auth.me.invalidate();[m
+     }[m
+   }, [logoutMutation, utils]);[m
+ [m
+   const state = useMemo(() => {[m
+[31m-    localStorage.setItem([m
+[31m-      "manus-runtime-user-info",[m
+[31m-      JSON.stringify(meQuery.data)[m
+[31m-    );[m
+     return {[m
+       user: meQuery.data ?? null,[m
+[31m-      loading: meQuery.isLoading || logoutMutation.isPending,[m
+[32m+[m[32m      // loading is true ONLY while the initial fetch is in-flight.[m
+[32m+[m[32m      // Once we have data OR an error, loading becomes false.[m
+[32m+[m[32m      loading: meQuery.isLoading,[m
+       error: meQuery.error ?? logoutMutation.error ?? null,[m
+       isAuthenticated: Boolean(meQuery.data),[m
+     };[m
+[36m@@ -56,23 +67,6 @@[m [mexport function useAuth(options?: UseAuthOptions) {[m
+     meQuery.error,[m
+     meQuery.isLoading,[m
+     logoutMutation.error,[m
+[31m-    logoutMutation.isPending,[m
+[31m-  ]);[m
+[31m-[m
+[31m-  useEffect(() => {[m
+[31m-    if (!redirectOnUnauthenticated) return;[m
+[31m-    if (meQuery.isLoading || logoutMutation.isPending) return;[m
+[31m-    if (state.user) return;[m
+[31m-    if (typeof window === "undefined") return;[m
+[31m-    if (window.location.pathname === redirectPath) return;[m
+[31m-[m
+[31m-    window.location.href = redirectPath[m
+[31m-  }, [[m
+[31m-    redirectOnUnauthenticated,[m
+[31m-    redirectPath,[m
+[31m-    logoutMutation.isPending,[m
+[31m-    meQuery.isLoading,[m
+[31m-    state.user,[m
+   ]);[m
+ [m
+   return {[m
+[1mdiff --git a/client/src/main.tsx b/client/src/main.tsx[m
+[1mindex e02349a..a99a6b3 100644[m
+[1m--- a/client/src/main.tsx[m
+[1m+++ b/client/src/main.tsx[m
+[36m@@ -1,5 +1,4 @@[m
+ import { trpc } from "@/lib/trpc";[m
+[31m-import { UNAUTHED_ERR_MSG } from '@shared/const';[m
+ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";[m
+ import { httpBatchLink, TRPCClientError } from "@trpc/client";[m
+ import { createRoot } from "react-dom/client";[m
+[36m@@ -7,61 +6,50 @@[m [mimport superjson from "superjson";[m
+ import App from "./App";[m
+ import "./index.css";[m
+ [m
+[31m-// Bootstrap token from URL before React mounts[m
+[31m-if (typeof window !== 'undefined') {[m
+[31m-  const p = new URLSearchParams(window.location.search);[m
+[31m-  const t = p.get('token');[m
+[31m-  if (t) {[m
+[31m-    localStorage.setItem('vault_admin_token', decodeURIComponent(t));[m
+[31m-    window.history.replaceState({}, '', window.location.pathname);[m
+[32m+[m[32m// ─── Token Bootstrap ────────────────────────────────────────────────────────[m
+[32m+[m[32m// If a ?token= param is present in the URL (legacy redirect from login),[m
+[32m+[m[32m// persist it to localStorage and strip it from the URL BEFORE React mounts.[m
+[32m+[m[32m// This ensures the tRPC client will have the token available on first request.[m
+[32m+[m[32mif (typeof window !== "undefined") {[m
+[32m+[m[32m  const params = new URLSearchParams(window.location.search);[m
+[32m+[m[32m  const urlToken = params.get("token");[m
+[32m+[m[32m  if (urlToken) {[m
+[32m+[m[32m    localStorage.setItem("vault_admin_token", decodeURIComponent(urlToken));[m
+[32m+[m[32m    // Clean URL without triggering a navigation[m
+[32m+[m[32m    window.history.replaceState({}, "", window.location.pathname);[m
+   }[m
+ }[m
+ [m
+[31m-const queryClient = new QueryClient();[m
+[31m-[m
+[31m-const redirectToLoginIfUnauthorized = (error: unknown) => {[m
+[31m-  if (!(error instanceof TRPCClientError)) return;[m
+[31m-  if (typeof window === "undefined") return;[m
+[31m-  const path = window.location.pathname;[m
+[31m-  if (path === "/admin/login") return;[m
+[31m-  if (path.startsWith("/admin")) return;[m
+[31m-  if (error.message === UNAUTHED_ERR_MSG) {[m
+[31m-    window.location.href = "/admin/login";[m
+[31m-  }[m
+[31m-};[m
+[31m-[m
+[31m-queryClient.getQueryCache().subscribe(event => {[m
+[31m-  if (event.type === "updated" && event.action.type === "error") {[m
+[31m-    redirectToLoginIfUnauthorized(event.query.state.error);[m
+[31m-  }[m
+[31m-});[m
+[31m-[m
+[31m-queryClient.getMutationCache().subscribe(event => {[m
+[31m-  if (event.type === "updated" && event.action.type === "error") {[m
+[31m-    redirectToLoginIfUnauthorized(event.mutation.state.error);[m
+[31m-  }[m
+[32m+[m[32m// ─── React Query Client ─────────────────────────────────────────────────────[m
+[32m+[m[32mconst queryClient = new QueryClient({[m
+[32m+[m[32m  defaultOptions: {[m
+[32m+[m[32m    queries: {[m
+[32m+[m[32m      retry: false,[m
+[32m+[m[32m      refetchOnWindowFocus: false,[m
+[32m+[m[32m    },[m
+[32m+[m[32m  },[m
+ });[m
+ [m
+[32m+[m[32m// ─── tRPC Client ────────────────────────────────────────────────────────────[m
+[32m+[m[32m// Bearer token from localStorage is attached to every request via Authorization header.[m
+[32m+[m[32m// This is the PRIMARY auth mechanism — cookies are a fallback only.[m
+ const trpcClient = trpc.createClient({[m
+[32m+[m[32m  transformer: superjson,[m
+   links: [[m
+     httpBatchLink({[m
+       url: "/api/trpc",[m
+[31m-      transformer: superjson,[m
+[31m-      fetch(input, init) {[m
+[32m+[m[32m      headers() {[m
+         const token = localStorage.getItem("vault_admin_token");[m
+[31m-        return globalThis.fetch(input, {[m
+[31m-          ...(init ?? {}),[m
+[31m-          credentials: "include",[m
+[31m-          headers: {[m
+[31m-            ...(init?.headers ?? {}),[m
+[31m-            ...(token ? { "Authorization": `Bearer ${token}` } : {}),[m
+[31m-          },[m
+[31m-        });[m
+[32m+[m[32m        if (token) {[m
+[32m+[m[32m          return { Authorization: `Bearer ${token}` };[m
+[32m+[m[32m        }[m
+[32m+[m[32m        return {};[m
+       },[m
+     }),[m
+   ],[m
+ });[m
+ [m
+[32m+[m[32m// ─── Render ─────────────────────────────────────────────────────────────────[m
+ createRoot(document.getElementById("root")!).render([m
+   <trpc.Provider client={trpcClient} queryClient={queryClient}>[m
+     <QueryClientProvider client={queryClient}>[m
+[1mdiff --git a/client/src/pages/AdminDashboard.tsx b/client/src/pages/AdminDashboard.tsx[m
+[1mindex 8c10e30..c6b9574 100644[m
+[1m--- a/client/src/pages/AdminDashboard.tsx[m
+[1m+++ b/client/src/pages/AdminDashboard.tsx[m
+[36m@@ -1,7 +1,6 @@[m
+ import { useState } from "react";[m
+ import { trpc } from "@/lib/trpc";[m
+ import { useAuth } from "../_core/hooks/useAuth";[m
+[31m-import { getLoginUrl } from "../const";[m
+ import { toast } from "sonner";[m
+ import OutreachSummaryWidget from "../components/OutreachSummaryWidget";[m
+ [m
+[36m@@ -974,26 +973,6 @@[m [mfunction SchoolSearchBox({ onSelect }: { onSelect: (school: DepEdSchoolResult) =[m
+ [m
+ // ─── Main Component ─────────────────────────────────────────────────────[m
+ [m
+[31m-// Token bootstrap — must run before any hook[m
+[31m-if (typeof window !== "undefined") {[m
+[31m-  const p = new URLSearchParams(window.location.search);[m
+[31m-  const t = p.get("token");[m
+[31m-  if (t) {[m
+[31m-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));[m
+[31m-    window.history.replaceState({}, "", "/admin");[m
+[31m-  }[m
+[31m-}[m
+[31m-[m
+[31m-// Token bootstrap — must run before any hook[m
+[31m-if (typeof window !== "undefined") {[m
+[31m-  const p = new URLSearchParams(window.location.search);[m
+[31m-  const t = p.get("token");[m
+[31m-  if (t) {[m
+[31m-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));[m
+[31m-    window.history.replaceState({}, "", "/admin");[m
+[31m-  }[m
+[31m-}[m
+[31m-[m
+ export default function AdminDashboard() {[m
+   const { user, loading: authLoading } = useAuth();[m
+   const [selectedApp, setSelectedApp] = useState<Application | null>(null);[m
+[36m@@ -1207,55 +1186,28 @@[m [mexport default function AdminDashboard() {[m
+     }[m
+   };[m
+ [m
+[32m+[m[32m  // ─── Auth Gate ─────────────────────────────────────────────────────────────[m
+[32m+[m[32m  // IMPORTANT: Wait for auth.me to fully resolve before making any redirect decision.[m
+[32m+[m[32m  // This prevents the race condition where the dashboard redirects to /admin/login[m
+[32m+[m[32m  // before the token has been validated by the server.[m
+   if (authLoading) {[m
+     return ([m
+       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>[m
+[31m-        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Loading...</div>[m
+[32m+[m[32m        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Verifying access...</div>[m
+       </div>[m
+     );[m
+   }[m
+ [m
+[31m-  if (!user) {[m
+[32m+[m[32m  // Auth resolved but user is not admin — redirect to login[m
+[32m+[m[32m  if (!user || user.role !== "admin") {[m
+[32m+[m[32m    window.location.replace("/admin/login");[m
+     return ([m
+[31m-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--vault-black)" }}>[m
+[31m-        <h2[m
+[31m-          className="text-xl mb-4 tracking-wide"[m
+[31m-          style={{ color: "var(--vault-text)", fontFamily: "Cinzel, serif" }}[m
+[31m-        >[m
+[31m-          Admin Access Required[m
+[31m-        </h2>[m
+[31m-        <a[m
+[31m-          href="/admin/login"[m
+[31m-          className="px-8 py-3 text-sm tracking-wider uppercase"[m
+[31m-          style={{[m
+[31m-            background: "var(--vault-gold)",[m
+[31m-            color: "#050505",[m
+[31m-            fontFamily: "Cinzel, serif",[m
+[31m-            borderRadius: "2px",[m
+[31m-          }}[m
+[31m-        >[m
+[31m-          Sign In[m
+[31m-        </a>[m
+[32m+[m[32m      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>[m
+[32m+[m[32m        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Redirecting to login...</div>[m
+       </div>[m
+     );[m
+   }[m
+ [m
+[31m-  // Extract token from URL param if present (post-login redirect)[m
+[31m-  if (typeof window !== "undefined") {[m
+[31m-    const urlParams = new URLSearchParams(window.location.search);[m
+[31m-    const urlToken = urlParams.get("token");[m
+[31m-    if (urlToken) {[m
+[31m-      localStorage.setItem("vault_admin_token", urlToken);[m
+[31m-      window.history.replaceState({}, "", "/admin");[m
+[31m-    }[m
+[31m-  }[m
+[31m-[m
+[31m-  if (authLoading) return null;[m
+[31m-  if (!user || user.role !== "admin") {[m
+[31m-    window.location.href = "/admin/login";[m
+[31m-    return null;[m
+[31m-  }[m
+[31m-[m
+   const apps = (applications as Application[]) ?? [];[m
+ [m
+   const filtered = apps.filter((app) => {[m
+[1mdiff --git a/client/src/pages/AdminLogin.tsx b/client/src/pages/AdminLogin.tsx[m
+[1mindex bdae811..9735007 100644[m
+[1m--- a/client/src/pages/AdminLogin.tsx[m
+[1m+++ b/client/src/pages/AdminLogin.tsx[m
+[36m@@ -1,10 +1,20 @@[m
+[31m-import { useState } from "react";[m
+[32m+[m[32mimport { useState, useEffect } from "react";[m
+[32m+[m[32mimport { useAuth } from "../_core/hooks/useAuth";[m
+ [m
+ export default function AdminLogin() {[m
+   const [password, setPassword] = useState("");[m
+   const [error, setError] = useState<string | null>(null);[m
+   const [loading, setLoading] = useState(false);[m
+ [m
+[32m+[m[32m  const { user, loading: authLoading } = useAuth();[m
+[32m+[m
+[32m+[m[32m  // If already authenticated as admin, redirect to dashboard immediately[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    if (!authLoading && user && user.role === "admin") {[m
+[32m+[m[32m      window.location.replace("/admin");[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }, [authLoading, user]);[m
+[32m+[m
+   const handleSubmit = async (e: React.FormEvent) => {[m
+     e.preventDefault();[m
+     setError(null);[m
+[36m@@ -13,7 +23,6 @@[m [mexport default function AdminLogin() {[m
+       const res = await fetch("/api/auth/admin-login", {[m
+         method: "POST",[m
+         headers: { "Content-Type": "application/json" },[m
+[31m-        credentials: "include",[m
+         body: JSON.stringify({ password }),[m
+       });[m
+       const data = await res.json();[m
+[36m@@ -23,28 +32,51 @@[m [mexport default function AdminLogin() {[m
+         return;[m
+       }[m
+       if (data.token) {[m
+[32m+[m[32m        // Persist token — this is the single source of truth for auth[m
+         localStorage.setItem("vault_admin_token", data.token);[m
+[32m+[m[32m        // Navigate to dashboard. The tRPC client in main.tsx will pick up[m
+[32m+[m[32m        // the token from localStorage on the next page load.[m
+[32m+[m[32m        window.location.href = "/admin";[m
+[32m+[m[32m      } else {[m
+[32m+[m[32m        setError("No token received from server.");[m
+[32m+[m[32m        setLoading(false);[m
+       }[m
+[31m-      localStorage.setItem("vault_admin_token", data.token);[m
+[31m-      await new Promise(r => setTimeout(r, 300));[m
+[31m-      window.location.replace("/admin?token=" + encodeURIComponent(data.token));[m
+     } catch (err) {[m
+       setError("Network error. Please try again.");[m
+       setLoading(false);[m
+     }[m
+   };[m
+ [m
+[32m+[m[32m  // While checking existing auth, show a minimal loading state[m
+[32m+[m[32m  if (authLoading) {[m
+[32m+[m[32m    return ([m
+[32m+[m[32m      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a" }}>[m
+[32m+[m[32m        <div style={{ color: "#888", fontSize: "0.9rem" }}>Checking session...</div>[m
+[32m+[m[32m      </div>[m
+[32m+[m[32m    );[m
+[32m+[m[32m  }[m
+[32m+[m
+   return ([m
+     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a", padding: "1.5rem" }}>[m
+       <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "420px", background: "#141414", border: "1px solid #2a2a2a", borderRadius: "12px", padding: "2.5rem 2rem" }}>[m
+         <h1 style={{ color: "#e8d9b5", fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem", textAlign: "center", letterSpacing: "0.02em" }}>THE VAULT INVESTIGATES</h1>[m
+         <p style={{ color: "#888", fontSize: "0.9rem", textAlign: "center", marginBottom: "2rem" }}>Admin Access</p>[m
+         <label htmlFor="password" style={{ display: "block", color: "#ccc", fontSize: "0.9rem", marginBottom: "0.5rem" }}>Password</label>[m
+[31m-        <input id="password" type="password" autoFocus autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)}[m
+[31m-          style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1rem", background: "#1c1c1c", border: "1px solid #333", borderRadius: "8px", color: "#fff", marginBottom: "1.25rem", boxSizing: "border-box" }} />[m
+[32m+[m[32m        <input[m
+[32m+[m[32m          id="password"[m
+[32m+[m[32m          type="password"[m
+[32m+[m[32m          autoFocus[m
+[32m+[m[32m          autoComplete="current-password"[m
+[32m+[m[32m          value={password}[m
+[32m+[m[32m          onChange={e => setPassword(e.target.value)}[m
+[32m+[m[32m          style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1rem", background: "#1c1c1c", border: "1px solid #333", borderRadius: "8px", color: "#fff", marginBottom: "1.25rem", boxSizing: "border-box" }}[m
+[32m+[m[32m        />[m
+         {error && <div style={{ color: "#ff6b6b", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{error}</div>}[m
+[31m-        <button type="submit" disabled={loading || !password}[m
+[31m-          style={{ width: "100%", padding: "0.9rem", fontSize: "1rem", fontWeight: 600, background: loading || !password ? "#5a4a2a" : "#d4af37", color: "#0a0a0a", border: "none", borderRadius: "8px", cursor: loading || !password ? "not-allowed" : "pointer" }}>[m
+[32m+[m[32m        <button[m
+[32m+[m[32m          type="submit"[m
+[32m+[m[32m          disabled={loading || !password}[m
+[32m+[m[32m          style={{ width: "100%", padding: "0.9rem", fontSize: "1rem", fontWeight: 600, background: loading || !password ? "#5a4a2a" : "#d4af37", color: "#0a0a0a", border: "none", borderRadius: "8px", cursor: loading || !password ? "not-allowed" : "pointer" }}[m
+[32m+[m[32m        >[m
+           {loading ? "Signing in..." : "Sign In"}[m
+         </button>[m
+       </form>[m
+[1mdiff --git a/server/_core/sdk.ts b/server/_core/sdk.ts[m
+[1mindex 40fd5ea..d77f847 100644[m
+[1m--- a/server/_core/sdk.ts[m
+[1m+++ b/server/_core/sdk.ts[m
+[36m@@ -257,8 +257,8 @@[m [mclass SDKServer {[m
+   }[m
+ [m
+   async authenticateRequest(req: Request): Promise<User> {[m
+[31m-    // Regular authentication flow[m
+[31m-    // Support Bearer token in Authorization header (fallback for cookie-blocked browsers)[m
+[32m+[m[32m    // Primary: Bearer token from Authorization header[m
+[32m+[m[32m    // Fallback: session cookie[m
+     const authHeader = req.headers.authorization;[m
+     let sessionToken: string | undefined;[m
+     if (authHeader && authHeader.startsWith("Bearer ")) {[m
+[36m@@ -267,20 +267,21 @@[m [mclass SDKServer {[m
+       const cookies = this.parseCookies(req.headers.cookie);[m
+       sessionToken = cookies.get(COOKIE_NAME);[m
+     }[m
+[32m+[m
+     const session = await this.verifySession(sessionToken);[m
+ [m
+     if (!session) {[m
+[31m-      throw ForbiddenError("Invalid session cookie");[m
+[32m+[m[32m      throw ForbiddenError("Invalid session");[m
+     }[m
+ [m
+     const sessionUserId = session.openId;[m
+     const signedInAt = new Date();[m
+     let user = await db.getUserByOpenId(sessionUserId);[m
+ [m
+[31m-    // If user not in DB, sync from OAuth server automatically[m
+[32m+[m[32m    // If user not in DB, attempt to sync from OAuth server[m
+     if (!user) {[m
+       try {[m
+[31m-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");[m
+[32m+[m[32m        const userInfo = await this.getUserInfoWithJwt(sessionToken ?? "");[m
+         await db.upsertUser({[m
+           openId: userInfo.openId,[m
+           name: userInfo.name || null,[m

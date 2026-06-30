@@ -1,5 +1,4 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -7,61 +6,50 @@ import superjson from "superjson";
 import App from "./App";
 import "./index.css";
 
-// Bootstrap token from URL before React mounts
-if (typeof window !== 'undefined') {
-  const p = new URLSearchParams(window.location.search);
-  const t = p.get('token');
-  if (t) {
-    localStorage.setItem('vault_admin_token', decodeURIComponent(t));
-    window.history.replaceState({}, '', window.location.pathname);
+// ─── Token Bootstrap ────────────────────────────────────────────────────────
+// If a ?token= param is present in the URL (legacy redirect from login),
+// persist it to localStorage and strip it from the URL BEFORE React mounts.
+// This ensures the tRPC client will have the token available on first request.
+if (typeof window !== "undefined") {
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get("token");
+  if (urlToken) {
+    localStorage.setItem("vault_admin_token", decodeURIComponent(urlToken));
+    // Clean URL without triggering a navigation
+    window.history.replaceState({}, "", window.location.pathname);
   }
 }
 
-const queryClient = new QueryClient();
-
-const redirectToLoginIfUnauthorized = (error: unknown) => {
-  if (!(error instanceof TRPCClientError)) return;
-  if (typeof window === "undefined") return;
-  const path = window.location.pathname;
-  if (path === "/admin/login") return;
-  if (path.startsWith("/admin")) return;
-  if (error.message === UNAUTHED_ERR_MSG) {
-    window.location.href = "/admin/login";
-  }
-};
-
-queryClient.getQueryCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    redirectToLoginIfUnauthorized(event.query.state.error);
-  }
+// ─── React Query Client ─────────────────────────────────────────────────────
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
-queryClient.getMutationCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    redirectToLoginIfUnauthorized(event.mutation.state.error);
-  }
-});
-
+// ─── tRPC Client ────────────────────────────────────────────────────────────
+// Bearer token from localStorage is attached to every request via Authorization header.
+// This is the PRIMARY auth mechanism — cookies are a fallback only.
 const trpcClient = trpc.createClient({
+  transformer: superjson,
   links: [
     httpBatchLink({
       url: "/api/trpc",
-      transformer: superjson,
-      fetch(input, init) {
+      headers() {
         const token = localStorage.getItem("vault_admin_token");
-        return globalThis.fetch(input, {
-          ...(init ?? {}),
-          credentials: "include",
-          headers: {
-            ...(init?.headers ?? {}),
-            ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-          },
-        });
+        if (token) {
+          return { Authorization: `Bearer ${token}` };
+        }
+        return {};
       },
     }),
   ],
 });
 
+// ─── Render ─────────────────────────────────────────────────────────────────
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>

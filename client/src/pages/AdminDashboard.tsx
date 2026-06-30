@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "../_core/hooks/useAuth";
-import { getLoginUrl } from "../const";
 import { toast } from "sonner";
 import OutreachSummaryWidget from "../components/OutreachSummaryWidget";
 
@@ -974,26 +973,6 @@ function SchoolSearchBox({ onSelect }: { onSelect: (school: DepEdSchoolResult) =
 
 // ─── Main Component ─────────────────────────────────────────────────────
 
-// Token bootstrap — must run before any hook
-if (typeof window !== "undefined") {
-  const p = new URLSearchParams(window.location.search);
-  const t = p.get("token");
-  if (t) {
-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));
-    window.history.replaceState({}, "", "/admin");
-  }
-}
-
-// Token bootstrap — must run before any hook
-if (typeof window !== "undefined") {
-  const p = new URLSearchParams(window.location.search);
-  const t = p.get("token");
-  if (t) {
-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));
-    window.history.replaceState({}, "", "/admin");
-  }
-}
-
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -1207,53 +1186,26 @@ export default function AdminDashboard() {
     }
   };
 
+  // ─── Auth Gate ─────────────────────────────────────────────────────────────
+  // IMPORTANT: Wait for auth.me to fully resolve before making any redirect decision.
+  // This prevents the race condition where the dashboard redirects to /admin/login
+  // before the token has been validated by the server.
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>
-        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Loading...</div>
+        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Verifying access...</div>
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--vault-black)" }}>
-        <h2
-          className="text-xl mb-4 tracking-wide"
-          style={{ color: "var(--vault-text)", fontFamily: "Cinzel, serif" }}
-        >
-          Admin Access Required
-        </h2>
-        <a
-          href="/admin/login"
-          className="px-8 py-3 text-sm tracking-wider uppercase"
-          style={{
-            background: "var(--vault-gold)",
-            color: "#050505",
-            fontFamily: "Cinzel, serif",
-            borderRadius: "2px",
-          }}
-        >
-          Sign In
-        </a>
-      </div>
-    );
-  }
-
-  // Extract token from URL param if present (post-login redirect)
-  if (typeof window !== "undefined") {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get("token");
-    if (urlToken) {
-      localStorage.setItem("vault_admin_token", urlToken);
-      window.history.replaceState({}, "", "/admin");
-    }
-  }
-
-  if (authLoading) return null;
+  // Auth resolved but user is not admin — redirect to login
   if (!user || user.role !== "admin") {
-    window.location.href = "/admin/login";
-    return null;
+    window.location.replace("/admin/login");
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>
+        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Redirecting to login...</div>
+      </div>
+    );
   }
 
   const apps = (applications as Application[]) ?? [];

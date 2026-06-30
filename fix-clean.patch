@@ -1,0 +1,432 @@
+diff --git a/client/src/_core/hooks/useAuth.ts b/client/src/_core/hooks/useAuth.ts
+index f7948c1..ae74995 100644
+--- a/client/src/_core/hooks/useAuth.ts
++++ b/client/src/_core/hooks/useAuth.ts
+@@ -1,20 +1,31 @@
+ import { trpc } from "@/lib/trpc";
+ import { TRPCClientError } from "@trpc/client";
+-import { useCallback, useEffect, useMemo } from "react";
++import { useCallback, useMemo } from "react";
+ 
+ type UseAuthOptions = {
++  /** No longer used — redirect logic is handled by the consuming component */
+   redirectOnUnauthenticated?: boolean;
+   redirectPath?: string;
+ };
+ 
+-export function useAuth(options?: UseAuthOptions) {
+-  const { redirectOnUnauthenticated = false, redirectPath = "/admin/login" } =
+-    options ?? {};
++/**
++ * Core auth hook.
++ *
++ * Returns a 3-state model:
++ *   loading = true  → auth.me query is still in-flight (no redirect decision should be made)
++ *   loading = false, user != null → authenticated
++ *   loading = false, user == null → unauthenticated
++ *
++ * The consuming component MUST wait for loading === false before deciding
++ * whether to redirect to /admin/login.
++ */
++export function useAuth(_options?: UseAuthOptions) {
+   const utils = trpc.useUtils();
+ 
+   const meQuery = trpc.auth.me.useQuery(undefined, {
+     retry: false,
+     refetchOnWindowFocus: false,
++    staleTime: 30_000, // avoid unnecessary refetches within 30s
+   });
+ 
+   const logoutMutation = trpc.auth.logout.useMutation({
+@@ -31,23 +42,23 @@ export function useAuth(options?: UseAuthOptions) {
+         error instanceof TRPCClientError &&
+         error.data?.code === "UNAUTHORIZED"
+       ) {
++        // Already logged out — swallow
+         return;
+       }
+       throw error;
+     } finally {
++      localStorage.removeItem("vault_admin_token");
+       utils.auth.me.setData(undefined, null);
+       await utils.auth.me.invalidate();
+     }
+   }, [logoutMutation, utils]);
+ 
+   const state = useMemo(() => {
+-    localStorage.setItem(
+-      "manus-runtime-user-info",
+-      JSON.stringify(meQuery.data)
+-    );
+     return {
+       user: meQuery.data ?? null,
+-      loading: meQuery.isLoading || logoutMutation.isPending,
++      // loading is true ONLY while the initial fetch is in-flight.
++      // Once we have data OR an error, loading becomes false.
++      loading: meQuery.isLoading,
+       error: meQuery.error ?? logoutMutation.error ?? null,
+       isAuthenticated: Boolean(meQuery.data),
+     };
+@@ -56,23 +67,6 @@ export function useAuth(options?: UseAuthOptions) {
+     meQuery.error,
+     meQuery.isLoading,
+     logoutMutation.error,
+-    logoutMutation.isPending,
+-  ]);
+-
+-  useEffect(() => {
+-    if (!redirectOnUnauthenticated) return;
+-    if (meQuery.isLoading || logoutMutation.isPending) return;
+-    if (state.user) return;
+-    if (typeof window === "undefined") return;
+-    if (window.location.pathname === redirectPath) return;
+-
+-    window.location.href = redirectPath
+-  }, [
+-    redirectOnUnauthenticated,
+-    redirectPath,
+-    logoutMutation.isPending,
+-    meQuery.isLoading,
+-    state.user,
+   ]);
+ 
+   return {
+diff --git a/client/src/main.tsx b/client/src/main.tsx
+index e02349a..a99a6b3 100644
+--- a/client/src/main.tsx
++++ b/client/src/main.tsx
+@@ -1,5 +1,4 @@
+ import { trpc } from "@/lib/trpc";
+-import { UNAUTHED_ERR_MSG } from '@shared/const';
+ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+ import { httpBatchLink, TRPCClientError } from "@trpc/client";
+ import { createRoot } from "react-dom/client";
+@@ -7,61 +6,50 @@ import superjson from "superjson";
+ import App from "./App";
+ import "./index.css";
+ 
+-// Bootstrap token from URL before React mounts
+-if (typeof window !== 'undefined') {
+-  const p = new URLSearchParams(window.location.search);
+-  const t = p.get('token');
+-  if (t) {
+-    localStorage.setItem('vault_admin_token', decodeURIComponent(t));
+-    window.history.replaceState({}, '', window.location.pathname);
++// ─── Token Bootstrap ────────────────────────────────────────────────────────
++// If a ?token= param is present in the URL (legacy redirect from login),
++// persist it to localStorage and strip it from the URL BEFORE React mounts.
++// This ensures the tRPC client will have the token available on first request.
++if (typeof window !== "undefined") {
++  const params = new URLSearchParams(window.location.search);
++  const urlToken = params.get("token");
++  if (urlToken) {
++    localStorage.setItem("vault_admin_token", decodeURIComponent(urlToken));
++    // Clean URL without triggering a navigation
++    window.history.replaceState({}, "", window.location.pathname);
+   }
+ }
+ 
+-const queryClient = new QueryClient();
+-
+-const redirectToLoginIfUnauthorized = (error: unknown) => {
+-  if (!(error instanceof TRPCClientError)) return;
+-  if (typeof window === "undefined") return;
+-  const path = window.location.pathname;
+-  if (path === "/admin/login") return;
+-  if (path.startsWith("/admin")) return;
+-  if (error.message === UNAUTHED_ERR_MSG) {
+-    window.location.href = "/admin/login";
+-  }
+-};
+-
+-queryClient.getQueryCache().subscribe(event => {
+-  if (event.type === "updated" && event.action.type === "error") {
+-    redirectToLoginIfUnauthorized(event.query.state.error);
+-  }
+-});
+-
+-queryClient.getMutationCache().subscribe(event => {
+-  if (event.type === "updated" && event.action.type === "error") {
+-    redirectToLoginIfUnauthorized(event.mutation.state.error);
+-  }
++// ─── React Query Client ─────────────────────────────────────────────────────
++const queryClient = new QueryClient({
++  defaultOptions: {
++    queries: {
++      retry: false,
++      refetchOnWindowFocus: false,
++    },
++  },
+ });
+ 
++// ─── tRPC Client ────────────────────────────────────────────────────────────
++// Bearer token from localStorage is attached to every request via Authorization header.
++// This is the PRIMARY auth mechanism — cookies are a fallback only.
+ const trpcClient = trpc.createClient({
++  transformer: superjson,
+   links: [
+     httpBatchLink({
+       url: "/api/trpc",
+-      transformer: superjson,
+-      fetch(input, init) {
++      headers() {
+         const token = localStorage.getItem("vault_admin_token");
+-        return globalThis.fetch(input, {
+-          ...(init ?? {}),
+-          credentials: "include",
+-          headers: {
+-            ...(init?.headers ?? {}),
+-            ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+-          },
+-        });
++        if (token) {
++          return { Authorization: `Bearer ${token}` };
++        }
++        return {};
+       },
+     }),
+   ],
+ });
+ 
++// ─── Render ─────────────────────────────────────────────────────────────────
+ createRoot(document.getElementById("root")!).render(
+   <trpc.Provider client={trpcClient} queryClient={queryClient}>
+     <QueryClientProvider client={queryClient}>
+diff --git a/client/src/pages/AdminDashboard.tsx b/client/src/pages/AdminDashboard.tsx
+index 8c10e30..c6b9574 100644
+--- a/client/src/pages/AdminDashboard.tsx
++++ b/client/src/pages/AdminDashboard.tsx
+@@ -1,7 +1,6 @@
+ import { useState } from "react";
+ import { trpc } from "@/lib/trpc";
+ import { useAuth } from "../_core/hooks/useAuth";
+-import { getLoginUrl } from "../const";
+ import { toast } from "sonner";
+ import OutreachSummaryWidget from "../components/OutreachSummaryWidget";
+ 
+@@ -974,26 +973,6 @@ function SchoolSearchBox({ onSelect }: { onSelect: (school: DepEdSchoolResult) =
+ 
+ // ─── Main Component ─────────────────────────────────────────────────────
+ 
+-// Token bootstrap — must run before any hook
+-if (typeof window !== "undefined") {
+-  const p = new URLSearchParams(window.location.search);
+-  const t = p.get("token");
+-  if (t) {
+-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));
+-    window.history.replaceState({}, "", "/admin");
+-  }
+-}
+-
+-// Token bootstrap — must run before any hook
+-if (typeof window !== "undefined") {
+-  const p = new URLSearchParams(window.location.search);
+-  const t = p.get("token");
+-  if (t) {
+-    localStorage.setItem("vault_admin_token", decodeURIComponent(t));
+-    window.history.replaceState({}, "", "/admin");
+-  }
+-}
+-
+ export default function AdminDashboard() {
+   const { user, loading: authLoading } = useAuth();
+   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+@@ -1207,55 +1186,28 @@ export default function AdminDashboard() {
+     }
+   };
+ 
++  // ─── Auth Gate ─────────────────────────────────────────────────────────────
++  // IMPORTANT: Wait for auth.me to fully resolve before making any redirect decision.
++  // This prevents the race condition where the dashboard redirects to /admin/login
++  // before the token has been validated by the server.
+   if (authLoading) {
+     return (
+       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>
+-        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Loading...</div>
++        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Verifying access...</div>
+       </div>
+     );
+   }
+ 
+-  if (!user) {
++  // Auth resolved but user is not admin — redirect to login
++  if (!user || user.role !== "admin") {
++    window.location.replace("/admin/login");
+     return (
+-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--vault-black)" }}>
+-        <h2
+-          className="text-xl mb-4 tracking-wide"
+-          style={{ color: "var(--vault-text)", fontFamily: "Cinzel, serif" }}
+-        >
+-          Admin Access Required
+-        </h2>
+-        <a
+-          href="/admin/login"
+-          className="px-8 py-3 text-sm tracking-wider uppercase"
+-          style={{
+-            background: "var(--vault-gold)",
+-            color: "#050505",
+-            fontFamily: "Cinzel, serif",
+-            borderRadius: "2px",
+-          }}
+-        >
+-          Sign In
+-        </a>
++      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--vault-black)" }}>
++        <div className="text-sm" style={{ color: "var(--vault-muted)" }}>Redirecting to login...</div>
+       </div>
+     );
+   }
+ 
+-  // Extract token from URL param if present (post-login redirect)
+-  if (typeof window !== "undefined") {
+-    const urlParams = new URLSearchParams(window.location.search);
+-    const urlToken = urlParams.get("token");
+-    if (urlToken) {
+-      localStorage.setItem("vault_admin_token", urlToken);
+-      window.history.replaceState({}, "", "/admin");
+-    }
+-  }
+-
+-  if (authLoading) return null;
+-  if (!user || user.role !== "admin") {
+-    window.location.href = "/admin/login";
+-    return null;
+-  }
+-
+   const apps = (applications as Application[]) ?? [];
+ 
+   const filtered = apps.filter((app) => {
+diff --git a/client/src/pages/AdminLogin.tsx b/client/src/pages/AdminLogin.tsx
+index bdae811..9735007 100644
+--- a/client/src/pages/AdminLogin.tsx
++++ b/client/src/pages/AdminLogin.tsx
+@@ -1,10 +1,20 @@
+-import { useState } from "react";
++import { useState, useEffect } from "react";
++import { useAuth } from "../_core/hooks/useAuth";
+ 
+ export default function AdminLogin() {
+   const [password, setPassword] = useState("");
+   const [error, setError] = useState<string | null>(null);
+   const [loading, setLoading] = useState(false);
+ 
++  const { user, loading: authLoading } = useAuth();
++
++  // If already authenticated as admin, redirect to dashboard immediately
++  useEffect(() => {
++    if (!authLoading && user && user.role === "admin") {
++      window.location.replace("/admin");
++    }
++  }, [authLoading, user]);
++
+   const handleSubmit = async (e: React.FormEvent) => {
+     e.preventDefault();
+     setError(null);
+@@ -13,7 +23,6 @@ export default function AdminLogin() {
+       const res = await fetch("/api/auth/admin-login", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+-        credentials: "include",
+         body: JSON.stringify({ password }),
+       });
+       const data = await res.json();
+@@ -23,28 +32,51 @@ export default function AdminLogin() {
+         return;
+       }
+       if (data.token) {
++        // Persist token — this is the single source of truth for auth
+         localStorage.setItem("vault_admin_token", data.token);
++        // Navigate to dashboard. The tRPC client in main.tsx will pick up
++        // the token from localStorage on the next page load.
++        window.location.href = "/admin";
++      } else {
++        setError("No token received from server.");
++        setLoading(false);
+       }
+-      localStorage.setItem("vault_admin_token", data.token);
+-      await new Promise(r => setTimeout(r, 300));
+-      window.location.replace("/admin?token=" + encodeURIComponent(data.token));
+     } catch (err) {
+       setError("Network error. Please try again.");
+       setLoading(false);
+     }
+   };
+ 
++  // While checking existing auth, show a minimal loading state
++  if (authLoading) {
++    return (
++      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a" }}>
++        <div style={{ color: "#888", fontSize: "0.9rem" }}>Checking session...</div>
++      </div>
++    );
++  }
++
+   return (
+     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0a", padding: "1.5rem" }}>
+       <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "420px", background: "#141414", border: "1px solid #2a2a2a", borderRadius: "12px", padding: "2.5rem 2rem" }}>
+         <h1 style={{ color: "#e8d9b5", fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem", textAlign: "center", letterSpacing: "0.02em" }}>THE VAULT INVESTIGATES</h1>
+         <p style={{ color: "#888", fontSize: "0.9rem", textAlign: "center", marginBottom: "2rem" }}>Admin Access</p>
+         <label htmlFor="password" style={{ display: "block", color: "#ccc", fontSize: "0.9rem", marginBottom: "0.5rem" }}>Password</label>
+-        <input id="password" type="password" autoFocus autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)}
+-          style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1rem", background: "#1c1c1c", border: "1px solid #333", borderRadius: "8px", color: "#fff", marginBottom: "1.25rem", boxSizing: "border-box" }} />
++        <input
++          id="password"
++          type="password"
++          autoFocus
++          autoComplete="current-password"
++          value={password}
++          onChange={e => setPassword(e.target.value)}
++          style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1rem", background: "#1c1c1c", border: "1px solid #333", borderRadius: "8px", color: "#fff", marginBottom: "1.25rem", boxSizing: "border-box" }}
++        />
+         {error && <div style={{ color: "#ff6b6b", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{error}</div>}
+-        <button type="submit" disabled={loading || !password}
+-          style={{ width: "100%", padding: "0.9rem", fontSize: "1rem", fontWeight: 600, background: loading || !password ? "#5a4a2a" : "#d4af37", color: "#0a0a0a", border: "none", borderRadius: "8px", cursor: loading || !password ? "not-allowed" : "pointer" }}>
++        <button
++          type="submit"
++          disabled={loading || !password}
++          style={{ width: "100%", padding: "0.9rem", fontSize: "1rem", fontWeight: 600, background: loading || !password ? "#5a4a2a" : "#d4af37", color: "#0a0a0a", border: "none", borderRadius: "8px", cursor: loading || !password ? "not-allowed" : "pointer" }}
++        >
+           {loading ? "Signing in..." : "Sign In"}
+         </button>
+       </form>
+diff --git a/server/_core/sdk.ts b/server/_core/sdk.ts
+index 40fd5ea..d77f847 100644
+--- a/server/_core/sdk.ts
++++ b/server/_core/sdk.ts
+@@ -257,8 +257,8 @@ class SDKServer {
+   }
+ 
+   async authenticateRequest(req: Request): Promise<User> {
+-    // Regular authentication flow
+-    // Support Bearer token in Authorization header (fallback for cookie-blocked browsers)
++    // Primary: Bearer token from Authorization header
++    // Fallback: session cookie
+     const authHeader = req.headers.authorization;
+     let sessionToken: string | undefined;
+     if (authHeader && authHeader.startsWith("Bearer ")) {
+@@ -267,20 +267,21 @@ class SDKServer {
+       const cookies = this.parseCookies(req.headers.cookie);
+       sessionToken = cookies.get(COOKIE_NAME);
+     }
++
+     const session = await this.verifySession(sessionToken);
+ 
+     if (!session) {
+-      throw ForbiddenError("Invalid session cookie");
++      throw ForbiddenError("Invalid session");
+     }
+ 
+     const sessionUserId = session.openId;
+     const signedInAt = new Date();
+     let user = await db.getUserByOpenId(sessionUserId);
+ 
+-    // If user not in DB, sync from OAuth server automatically
++    // If user not in DB, attempt to sync from OAuth server
+     if (!user) {
+       try {
+-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
++        const userInfo = await this.getUserInfoWithJwt(sessionToken ?? "");
+         await db.upsertUser({
+           openId: userInfo.openId,
+           name: userInfo.name || null,
