@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Search, BookmarkPlus, Trash2, ExternalLink, ArrowLeft, Play, Newspaper, MessageSquare, Video } from "lucide-react";
+import { Search, BookmarkPlus, Trash2, ExternalLink, ArrowLeft, Play, Newspaper, MessageSquare, Video, Download } from "lucide-react";
+import { exportCreatorScanLeads } from "@/lib/exportMarkdown";
 
 const DEFAULT_KEYWORDS = [
   "poverty porn Philippines vlogger",
@@ -341,6 +342,19 @@ export default function CreatorScan() {
 
         {activeTab === "leads" && (
           <div className="space-y-3">
+            {leads.length > 0 && (
+              <div className="flex justify-end mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs gap-1.5"
+                  onClick={() => exportCreatorScanLeads(leads)}
+                >
+                  <Download size={14} />
+                  Export Leads
+                </Button>
+              </div>
+            )}
             {leadsQuery.isLoading && (
               <div className="text-center py-12 text-muted-foreground text-sm">Loading saved leads...</div>
             )}

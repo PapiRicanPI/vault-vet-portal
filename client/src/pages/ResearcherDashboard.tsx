@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Link, useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
+import { exportProjectNotes } from "@/lib/exportMarkdown";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 type Tab = "bookmarks" | "notes" | "projects" | "recent" | "calendar" | "profile" | "export";
@@ -129,6 +130,53 @@ function NotesTab() {
   );
 }
 
+function ExportProjectButton({ project }: { project: { id: number; title: string; description?: string | null; caseIds: unknown } }) {
+  const caseIds = project.caseIds as string[];
+  const utils = trpc.useUtils();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExporting(true);
+    try {
+      const notes: { caseId: string; note: string }[] = [];
+      for (const cid of caseIds) {
+        const result = await utils.researcher.getNote.fetch({ caseId: cid });
+        if (result?.note) {
+          notes.push({ caseId: cid, note: result.note });
+        }
+      }
+      exportProjectNotes({
+        title: project.title,
+        description: project.description,
+        caseIds,
+        notes,
+      });
+    } catch {
+      // If fetch fails, export with whatever we have
+      exportProjectNotes({
+        title: project.title,
+        description: project.description,
+        caseIds,
+        notes: [],
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleExport}
+      disabled={exporting}
+      className="text-zinc-600 hover:text-amber-400 text-xs px-2 py-1 rounded border border-zinc-700 hover:border-amber-700 transition-colors disabled:opacity-40"
+      title="Export project notes for NotebookLM"
+    >
+      {exporting ? "⏳" : "⬇"} Export Notes
+    </button>
+  );
+}
+
 function ProjectsTab() {
   const { data: projects, isLoading, refetch } = trpc.researcher.getProjects.useQuery();
   const [showCreate, setShowCreate] = useState(false);
@@ -201,6 +249,7 @@ function ProjectsTab() {
               <p className="text-zinc-600 text-xs mt-1">{(p.caseIds as string[]).length} case(s) · Created {formatDate(p.createdAt)}</p>
             </div>
             <div className="flex items-center gap-2">
+              <ExportProjectButton project={p} />
               <button
                 onClick={e => { e.stopPropagation(); if (confirm("Delete this project?")) deleteMutation.mutate({ projectId: p.id }); }}
                 className="text-zinc-600 hover:text-red-400 text-xs px-2 py-1 rounded border border-zinc-700 hover:border-red-700 transition-colors"
