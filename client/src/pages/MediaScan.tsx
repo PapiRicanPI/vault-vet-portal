@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Bookmark, CheckCircle, Copy, ExternalLink, Loader2, Plus, RefreshCw, Search, Tag } from "lucide-react";
+import { Bookmark, CheckCircle, Copy, Download, ExternalLink, Loader2, Plus, RefreshCw, Search, Tag } from "lucide-react";
+import { exportMediaScanLeads } from "@/lib/exportMarkdown";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -151,6 +152,19 @@ export default function MediaScan() {
           </TabsContent>
 
           <TabsContent value="leads" className="space-y-2 mt-4">
+            {!leadsLoading && savedLeads.length > 0 && (
+              <div className="flex justify-end mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs gap-1.5"
+                  onClick={() => exportMediaScanLeads(savedLeads)}
+                >
+                  <Download size={14} />
+                  Export Leads
+                </Button>
+              </div>
+            )}
             {leadsLoading ? (
               <div className="text-center py-8"><Loader2 size={20} className="mx-auto animate-spin text-primary" /></div>
             ) : savedLeads.length === 0 ? (
