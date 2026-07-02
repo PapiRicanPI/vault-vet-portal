@@ -739,9 +739,57 @@ function Field({
 function InviteModal({ onClose }: { onClose: () => void }) {
   const [emailInput, setEmailInput] = useState("");
   const [emails, setEmails] = useState<string[]>([]);
+  const [csvImportCount, setCsvImportCount] = useState(0);
   const DEFAULT_INVITE_MESSAGE =
     "You have been personally selected to apply for access to The Vault — a secure, vetted investigative database documenting poverty fraud cases from 1970 to present. This invitation is confidential. Please do not share it. Click the link below to submit your application.";
   const [message, setMessage] = useState(DEFAULT_INVITE_MESSAGE);
+
+  // CSV Import handler
+  const handleCsvImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+      const lines = text.split(/\r?\n/);
+      const parsed: string[] = [];
+      // Detect header row
+      const firstLine = lines[0]?.toLowerCase() ?? "";
+      const hasHeader = firstLine.includes("email") || firstLine.includes("address") || firstLine.includes("name");
+      const startIdx = hasHeader ? 1 : 0;
+      // Find email column index from header
+      let emailColIdx = 0;
+      if (hasHeader) {
+        const headers = lines[0].split(/[,\t]/).map(h => h.trim().toLowerCase().replace(/"/g, ""));
+        const idx = headers.findIndex(h => h.includes("email") || h.includes("address"));
+        if (idx >= 0) emailColIdx = idx;
+      }
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const cols = line.split(/[,\t]/).map(c => c.trim().replace(/"/g, ""));
+        const candidate = cols[emailColIdx] ?? "";
+        // Validate email-like pattern
+        if (candidate.includes("@") && candidate.includes(".")) {
+          const email = candidate.toLowerCase();
+          if (!emails.includes(email) && !parsed.includes(email)) {
+            parsed.push(email);
+          }
+        }
+      }
+      if (parsed.length > 0) {
+        setEmails((prev) => [...prev, ...parsed]);
+        setCsvImportCount(parsed.length);
+        toast.success(`Imported ${parsed.length} email${parsed.length === 1 ? "" : "s"} from CSV`);
+      } else {
+        toast.error("No valid emails found in CSV. Ensure the file has an 'email' column.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset the input so the same file can be re-imported
+    e.target.value = "";
+  };
 
   // Parse and add emails from the input field
   const addEmails = () => {
@@ -788,10 +836,38 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs tracking-wider uppercase mb-1.5" style={{ color: "var(--vault-gold)", fontFamily: "Cinzel, serif" }}>
-              Email Addresses <span style={{ color: "#e74c3c" }}>*</span>
-              <span style={{ color: "var(--vault-muted)", fontSize: "11px", textTransform: "none", letterSpacing: "0", marginLeft: "6px" }}>(separate multiple with comma or Enter)</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs tracking-wider uppercase" style={{ color: "var(--vault-gold)", fontFamily: "Cinzel, serif" }}>
+                Email Addresses <span style={{ color: "#e74c3c" }}>*</span>
+                <span style={{ color: "var(--vault-muted)", fontSize: "11px", textTransform: "none", letterSpacing: "0", marginLeft: "6px" }}>(separate multiple with comma or Enter)</span>
+              </label>
+              <label
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs cursor-pointer transition-colors"
+                style={{
+                  background: "rgba(229,201,126,0.1)",
+                  border: "1px solid var(--vault-gold)",
+                  borderRadius: "3px",
+                  color: "var(--vault-gold)",
+                  fontFamily: "Cinzel, serif",
+                  fontSize: "10px",
+                  letterSpacing: "0.05em",
+                }}
+                title="Import emails from a CSV file"
+              >
+                📄 Import CSV
+                <input
+                  type="file"
+                  accept=".csv,.tsv,.txt"
+                  onChange={handleCsvImport}
+                  style={{ display: "none" }}
+                />
+              </label>
+            </div>
+            {csvImportCount > 0 && (
+              <p className="text-xs mb-2" style={{ color: "var(--vault-muted)" }}>
+                ✓ {csvImportCount} email{csvImportCount === 1 ? "" : "s"} imported from CSV
+              </p>
+            )}
             {/* Email tags */}
             {emails.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
